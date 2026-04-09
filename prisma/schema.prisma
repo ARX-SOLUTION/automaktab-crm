@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  owner
+  manager
+}
+
+enum CourseType {
+  express
+  standard
+}
+
+enum StudentStatus {
+  active
+  completed
+  dropped
+  suspended
+}
+
+enum StudentResult {
+  pending
+  passed
+  failed
+}
+
+enum PaymentMethod {
+  cash
+  card
+  transfer
+}
+
+model User {
+  id        String    @id @default(uuid()) @db.Uuid
+  fullName  String    @map("full_name")
+  phone     String    @unique
+  password  String
+  role      Role
+  branchId  String?   @map("branch_id") @db.Uuid
+  branch    Branch?   @relation(fields: [branchId], references: [id])
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  registeredStudents Student[] @relation("RegisteredStudents")
+
+  @@index([role])
+  @@index([branchId])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Branch {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @unique
+  address   String
+  phone     String?
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  managers User[]
+  students Student[]
+  groups   Group[]
+
+  @@index([deletedAt])
+  @@map("branches")
+}
+
+model Group {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String
+  branchId   String     @map("branch_id") @db.Uuid
+  branch     Branch     @relation(fields: [branchId], references: [id])
+  courseType CourseType @default(standard) @map("course_type")
+  isActive   Boolean    @default(true) @map("is_active")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  students Student[]
+
+  @@unique([name, branchId])
+  @@index([branchId])
+  @@map("groups")
+}
+
+model Student {
+  id             String         @id @default(uuid()) @db.Uuid
+  firstName      String         @map("first_name")
+  lastName       String         @map("last_name")
+  phone          String
+  courseType     CourseType     @map("course_type")
+  status         StudentStatus  @default(active)
+  totalPrice     Decimal        @db.Decimal(12, 2) @map("total_price")
+  amountPaid     Decimal?       @db.Decimal(12, 2) @map("amount_paid")
+  initialPayment Decimal?       @db.Decimal(12, 2) @map("initial_payment")
+  secondPayment  Decimal?       @db.Decimal(12, 2) @map("second_payment")
+  thirdPayment   Decimal?       @db.Decimal(12, 2) @map("third_payment")
+  debt           Decimal        @default(0) @db.Decimal(12, 2)
+  paymentMethod  PaymentMethod? @map("payment_method")
+  groupId        String?        @map("group_id") @db.Uuid
+  group          Group?         @relation(fields: [groupId], references: [id])
+  completionDate DateTime?      @map("completion_date")
+  contractNumber String?        @map("contract_number")
+  o83            Boolean        @default(false)
+  hasDocument    Boolean        @default(false) @map("has_document")
+  result         StudentResult  @default(pending)
+  notes          String?
+  branchId       String         @map("branch_id") @db.Uuid
+  branch         Branch         @relation(fields: [branchId], references: [id])
+  registeredBy   String         @map("registered_by") @db.Uuid
+  registrar      User           @relation("RegisteredStudents", fields: [registeredBy], references: [id])
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  @@index([branchId, courseType, deletedAt])
+  @@index([courseType, status])
+  @@index([groupId])
+  @@index([debt])
+  @@map("students")
+}

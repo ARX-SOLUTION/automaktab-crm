@@ -1,0 +1,586 @@
+# NestJS Backend Template - Cursor Rules
+
+## Project Overview
+
+Production-ready NestJS backend template with authentication, user management, and layered architecture. Uses PostgreSQL (Prisma), Redis, AWS SES, and Cloudflare R2.
+
+## Architecture
+
+### Directory Structure
+
+```
+src/
+├── main.ts                     # Application entry point
+├── app.module.ts               # Root module
+├── config/                     # Configuration & validation (Zod)
+├── core/                       # Cross-cutting concerns
+│   ├── decorators/             # @CurrentUser, @Roles, @Public, @SkipWrapper
+│   ├── guards/                 # JwtAuthGuard, RolesGuard
+│   ├── filters/                # HttpExceptionFilter
+│   ├── interceptors/           # ResponseWrapperInterceptor, RequestLoggingInterceptor
+│   └── middleware/             # CorrelationIdMiddleware
+├── infra/                      # Infrastructure services
+│   ├── prisma/                 # Database connection (PrismaService)
+│   ├── logger/                 # Pino logger
+│   ├── redis/                  # Redis cache (RedisService, UserCacheService)
+│   ├── mail/                   # Email service (MailService - AWS SES)
+│   └── storage/                # File storage (StorageService - Cloudflare R2)
+├── common/                     # Shared utilities
+│   ├── dto/                    # Common DTOs (PaginationQueryDto)
+│   ├── types/                  # Shared types (CurrentUserPayload, ApiResponse)
+│   ├── exceptions/             # Custom API exceptions
+│   └── utils/                  # Utility functions
+└── modules/                    # Feature modules
+    ├── auth/                   # Authentication (JWT, refresh tokens)
+    ├── users/                  # User management
+    ├── upload/                 # File upload
+    ├── categories/             # Categories module
+    ├── posts/                  # Posts module
+    └── health/                 # Health checks
+```
+
+### Module Structure Pattern
+
+Each feature module follows this structure:
+
+```
+{module}/
+├── {module}.module.ts          # NestJS module definition
+├── {module}.controller.ts      # HTTP endpoints (presentation layer)
+├── {module}.service.ts         # Business logic (service layer)
+├── dto/
+│   ├── request/                # Input DTOs with validation
+│   └── response/               # Output DTOs with transformation
+├── services/                   # Sub-services for complex operations (optional)
+└── index.ts                    # Barrel exports
+```
+
+## Code Conventions
+
+**IMPORTANT: Do not write any comments in code.** All documentation should be in README.md, CLAUDE.md, or this file. Code should be self-documenting through clear naming and structure.
+
+### File Naming
+
+- Module: `{entity}.module.ts`
+- Controller: `{entity}.controller.ts`
+- Service: `{entity}.service.ts`
+- Create DTO: `create-{entity}.dto.ts`
+- Update DTO: `update-{entity}.dto.ts`
+- Query DTO: `get-{entities}-query.dto.ts`
+- Response DTO: `{entity}.response.ts`
+- Guard: `{name}.guard.ts`
+- Interceptor: `{name}.interceptor.ts`
+- Filter: `{name}.filter.ts`
+- Middleware: `{name}.middleware.ts`
+- Strategy: `{name}.strategy.ts`
+- Unit Test: `{file}.spec.ts` (co-located with source)
+- E2E Test: `{feature}.e2e-spec.ts` (in test/ directory)
+
+### Path Aliases
+
+- `@/*` → `src/*`
+- `@config` → `src/config`
+- `@modules` → `src/modules`
+- `@infra/*` → `src/infra/*`
+- `@common/*` → `src/common/*`
+- `@core/*` → `src/core/*`
+
+### Database Conventions
+
+- **Code**: camelCase (`fullName`, `createdAt`, `emailVerified`)
+- **Database**: snake_case (`full_name`, `created_at`, `email_verified`)
+- **Tables**: plural snake_case (`users`, `blog_posts`)
+- **Primary Key**: UUID with `@db.Uuid`
+- **Soft Deletes**: Always use `deletedAt` field (never hard delete)
+- **Timestamps**: `createdAt` and `updatedAt` with proper `@map` directives
+
+**Prisma Schema Pattern:**
+
+```prisma
+model Entity {
+  id          String    @id @default(uuid()) @db.Uuid
+  title       String
+  authorId    String    @map("author_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([deletedAt])
+  @@map("entities")
+}
+```
+
+## Code Patterns
+
+### Controller Pattern
+
+```typescript
+@ApiTags('Entities')
+@ApiBearerAuth()
+@Controller('entities')
+export class EntitiesController {
+  constructor(private readonly service: EntitiesService) {}
+
+  @Get()
+  @UseGuards(RolesGuard)
+  @Roles(Role.superadmin, Role.admin)
+  async findAll(@Query() query: GetEntitiesQueryDto) {
+    const { data, meta } = await this.service.findAll(query);
+    return {
+      data: data.map(EntityResponse.fromEntity),
+      meta,
+    };
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const entity = await this.service.findById(id);
+    return EntityResponse.fromEntity(entity);
+  }
+
+  @Post()
+  async create(@Body() dto: CreateEntityDto, @CurrentUser() user: CurrentUserPayload) {
+    const entity = await this.service.create(dto, user);
+    return EntityResponse.fromEntity(entity);
+  }
+
+  @Patch(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.superadmin, Role.admin)
+  async update(@Param('id') id: string, @Body() dto: UpdateEntityDto) {
+    const entity = await this.service.update(id, dto);
+    return EntityResponse.fromEntity(entity);
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.superadmin, Role.admin)
+  async delete(@Param('id') id: string) {
+    await this.service.delete(id);
+    return { message: 'Entity deleted successfully' };
+  }
+}
+```
+
+### Service Pattern with Pagination
+
+```typescript
+@Injectable()
+export class EntitiesService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(query: GetEntitiesQueryDto) {
+    const { page = 1, limit = 10, search } = query;
+    const skip = (page - 1) * limit;
+
+    const where = {
+      deletedAt: null,
+      ...(search && {
+        title: { contains: search, mode: 'insensitive' as const },
+      }),
+    };
+
+    const [data, total] = await Promise.all([
+      this.prisma.entity.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.entity.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
+  }
+
+  async findById(id: string) {
+    const entity = await this.prisma.entity.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!entity) {
+      throw new ApiNotFoundException('Entity not found');
+    }
+    return entity;
+  }
+
+  async create(dto: CreateEntityDto, user: CurrentUserPayload) {
+    return this.prisma.entity.create({
+      data: {
+        ...dto,
+        authorId: user.id,
+      },
+    });
+  }
+
+  async update(id: string, dto: UpdateEntityDto) {
+    await this.findById(id);
+    return this.prisma.entity.update({
+      where: { id },
+      data: dto,
+    });
+  }
+
+  async delete(id: string) {
+    await this.findById(id);
+    return this.prisma.entity.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  }
+}
+```
+
+### Request DTO Pattern
+
+```typescript
+export class CreateEntityDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(255)
+  title: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+export class UpdateEntityDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(255)
+  title?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+export class GetEntitiesQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  search?: string;
+}
+```
+
+### Response DTO Pattern
+
+```typescript
+export class EntityResponse {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  title: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+
+  static fromEntity(entity: Entity): EntityResponse {
+    return {
+      id: entity.id,
+      title: entity.title,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+}
+```
+
+## Response Format
+
+### Single Resource
+
+Return directly without wrapper:
+
+```json
+{
+  "id": "uuid",
+  "title": "Example",
+  "createdAt": "2025-01-15T10:30:00.000Z"
+}
+```
+
+### Paginated List
+
+```json
+{
+  "data": [...],
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 10,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  }
+}
+```
+
+### Error Response
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Entity not found",
+    "details": [],
+    "timestamp": "2025-01-15T10:30:00.000Z",
+    "path": "/api/entities/123",
+    "requestId": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+## Error Codes
+
+| Code                  | HTTP Status | Usage                    |
+| --------------------- | ----------- | ------------------------ |
+| `VALIDATION_ERROR`    | 400         | Input validation failed  |
+| `BAD_REQUEST`         | 400         | Invalid request          |
+| `UNAUTHORIZED`        | 401         | Authentication required  |
+| `FORBIDDEN`           | 403         | Insufficient permissions |
+| `NOT_FOUND`           | 404         | Resource not found       |
+| `CONFLICT`            | 409         | Resource conflict        |
+| `RATE_LIMIT_EXCEEDED` | 429         | Too many requests        |
+| `INTERNAL_ERROR`      | 500         | Server error             |
+
+### Exception Usage
+
+```typescript
+import {
+  ApiBadRequestException,
+  ApiNotFoundException,
+  ApiConflictException,
+  ApiValidationException,
+} from '@common/exceptions';
+
+throw new ApiNotFoundException('Entity not found');
+throw new ApiBadRequestException('Invalid input', { errorCode: 'INVALID_FORMAT' });
+throw new ApiConflictException('Email already exists');
+throw new ApiValidationException('Validation failed', { details: [...] });
+```
+
+## Decorators
+
+| Decorator                | Purpose                                                               | Example                                   |
+| ------------------------ | --------------------------------------------------------------------- | ----------------------------------------- |
+| `@Public()`              | Skip JWT authentication                                               | `@Public() @Get('public')`                |
+| `@CurrentUser()`         | Get authenticated user from request                                   | `@CurrentUser() user: CurrentUserPayload` |
+| `@Roles(...)`            | Restrict access to specific roles (use with `@UseGuards(RolesGuard)`) | `@Roles(Role.admin, Role.superadmin)`     |
+| `@SkipResponseWrapper()` | Skip response wrapper for raw responses                               | `@SkipResponseWrapper() @Get('raw')`      |
+
+## Roles
+
+- `Role.superadmin` - Full system access
+- `Role.admin` - Administrative access
+- `Role.user` - Standard user access
+
+## Authentication & Security
+
+- JWT tokens in Authorization header as Bearer token
+- Access token: 15 minutes (configurable)
+- Refresh token: 7 days (configurable)
+- Refresh tokens are bcrypt hashed before storage
+- `JwtAuthGuard` is applied globally - use `@Public()` for public routes
+- User caching in Redis (5 min TTL, key: `user:{id}`)
+- Cache invalidation on user update, password change, logout, token refresh
+
+## Services
+
+### PrismaService
+
+```typescript
+constructor(private prisma: PrismaService) {}
+
+await this.prisma.entity.findMany({ where: { deletedAt: null } });
+await this.prisma.$transaction(async (tx) => { ... });
+```
+
+### MailService (AWS SES)
+
+```typescript
+constructor(private mailService: MailService) {}
+
+await this.mailService.sendMail(email, subject, html, text);
+await this.mailService.sendEmailVerification(email, token);
+await this.mailService.sendPasswordReset(email, token);
+```
+
+### StorageService (Cloudflare R2)
+
+```typescript
+constructor(private storageService: StorageService) {}
+
+const result = await this.storageService.upload(key, buffer, contentType);
+const uploadUrl = await this.storageService.getPresignedUploadUrl(key, contentType);
+const downloadUrl = await this.storageService.getPresignedDownloadUrl(key);
+await this.storageService.delete(key);
+const key = this.storageService.generateKey('avatars', 'photo.jpg');
+```
+
+### RedisService & Caching
+
+```typescript
+constructor(private redis: RedisService) {}
+
+await this.redis.get(key);
+await this.redis.set(key, value, ttlSeconds);
+await this.redis.del(key);
+
+// User caching
+constructor(private userCache: UserCacheService) {}
+
+const cached = await this.userCache.get(userId);
+await this.userCache.set(user);
+await this.userCache.invalidate(userId);
+```
+
+## Key Imports
+
+```typescript
+// Types
+import { CurrentUserPayload } from '@common/types';
+import { Role } from '@prisma/client';
+
+// Decorators
+import { CurrentUser, Roles, Public, SkipResponseWrapper } from '@core/decorators';
+
+// Guards
+import { RolesGuard } from '@core/guards';
+import { JwtAuthGuard } from '@core/guards';
+
+// Services
+import { PrismaService } from '@infra/prisma/prisma.service';
+import { MailService } from '@infra/mail/mail.service';
+import { StorageService } from '@infra/storage';
+import { RedisService, UserCacheService } from '@infra/redis';
+
+// Common DTOs
+import { PaginationQueryDto } from '@common/dto/pagination.dto';
+
+// Exceptions
+import {
+  ApiBadRequestException,
+  ApiNotFoundException,
+  ApiConflictException,
+  ApiValidationException,
+} from '@common/exceptions';
+```
+
+## Adding New Modules
+
+1. Create module directory: `src/modules/{module-name}/`
+2. Create files following the module structure pattern
+3. Register in `app.module.ts` imports
+4. Add Prisma model in `prisma/schema.prisma` with proper naming conventions
+5. Run `npm run prisma:migrate` to create migration
+6. Generate Prisma client: `npm run prisma:generate`
+
+## Code Style Rules
+
+1. **Do not write any comments in code** - All documentation should be in README.md, CLAUDE.md, or this file. Code must be self-documenting through clear naming and structure.
+2. **Use barrel exports** - Always create `index.ts` for directory exports
+3. **Use static factory methods** - Response DTOs use `fromEntity()` static method
+4. **Use soft deletes** - Always use `deletedAt` field, never hard delete
+5. **Use UUID for primary keys** - Simple and sufficient for most projects
+6. **Consistent response structures** - Follow the response format patterns
+7. **Validation pipes** - Use `whitelist` and `transform` options
+8. **Error handling** - Always use custom API exceptions with proper error codes
+
+## Rate Limiting
+
+| Endpoint                    | Limit   | Purpose                |
+| --------------------------- | ------- | ---------------------- |
+| Global                      | 100/min | General protection     |
+| `/auth/signin`              | 15/min  | Brute force protection |
+| `/auth/signup`              | 5/min   | Spam prevention        |
+| `/auth/forgot-password`     | 3/min   | Email spam prevention  |
+| `/auth/resend-verification` | 3/min   | Email spam prevention  |
+| `/auth/refresh`             | 30/min  | Token refresh          |
+| `/auth/reset-password`      | 5/min   | Reset attempts         |
+| `/auth/verify-email`        | 5/min   | Verification attempts  |
+
+## Health Checks
+
+- `GET /api/health` - Full health check (DB + Redis)
+- `GET /api/health/live` - Liveness probe
+- `GET /api/health/ready` - Readiness probe
+
+## Observability
+
+- Request correlation IDs (UUID) - attached to every request/response
+- Request/response logging - enabled via `ENABLE_REQUEST_LOGGING` env var
+- Structured error responses with codes
+- Health check endpoints for monitoring
+
+## Database Connection Pooling
+
+Configure via DATABASE_URL:
+
+```
+DATABASE_URL=postgresql://...?connection_limit=10&pool_timeout=30
+```
+
+## Environment Variables
+
+Key required variables:
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - JWT signing secret (min 32 chars)
+- `REDIS_HOST` - Redis host (default: localhost)
+- `REDIS_PORT` - Redis port (default: 6379)
+- `SWAGGER_PASSWORD` - Swagger basic auth password (min 8 chars)
+
+All environment variables are validated on startup using Zod. Application fails fast if configuration is invalid.
+
+## Module Generation
+
+Use the built-in generator:
+
+```bash
+npm run generate:module <name>
+```
+
+Generates full CRUD module structure. After generation:
+
+1. Add Prisma model to `prisma/schema.prisma`
+2. Run `npm run prisma:migrate`
+3. Run `npm run prisma:generate`
+
+## Testing
+
+- Unit tests: `{file}.spec.ts` co-located with source files
+- E2E tests: `test/{feature}.e2e-spec.ts`
+- Commands: `npm run test`, `npm run test:watch`, `npm run test:cov`, `npm run test:e2e`
+
+## Key Principles
+
+1. **No Comments in Code** - Do not write any comments in code. All documentation should be in README.md, CLAUDE.md, or this file. Code must be self-documenting.
+2. **Layered Architecture** - Controller → Service → Prisma
+3. **DRY** - Use common utilities, DTOs, and patterns
+4. **Type Safety** - Leverage TypeScript and Prisma types
+5. **Security First** - Always validate, authenticate, and authorize
+6. **Performance** - Use Redis caching for frequently accessed data
+7. **Observability** - Logging, correlation IDs, health checks
+8. **Consistency** - Follow established patterns and conventions
