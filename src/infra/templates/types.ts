@@ -40,6 +40,7 @@ export interface PageFilterContext {
 export interface PageMetaContext {
   title: string;
   pageTitle: string;
+  pageDescription?: string;
   currentPage: string;
   pageScript?: string;
   user?: TemplateUserContext;
@@ -89,6 +90,7 @@ export interface StudentRowContext extends Omit<StudentResponse, 'installments' 
 export interface StudentsPageContext extends PageMetaContext {
   user: TemplateUserContext;
   branches: Array<Pick<BranchResponse, 'id' | 'name'>>;
+  groups: Array<Pick<GroupResponse, 'id' | 'name' | 'branchId' | 'branchName'>>;
   students: StudentRowContext[];
   meta: PaginationMetaDto;
   summary: StudentsSummaryContext;

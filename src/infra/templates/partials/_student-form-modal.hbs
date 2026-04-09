@@ -1,19 +1,22 @@
 <div class="modal" id="student-create-modal">
   <div class="modal-content modal-lg">
     <button class="modal-close" type="button" data-modal-close="student-create-modal">×</button>
-    <h3>Yangi talaba qo'shish</h3>
-    <form action="/app/students" method="POST" class="form-grid">
+    <div class="modal-header">
+      <h3>Yangi talaba qo'shish</h3>
+      <p>Talaba ma'lumotlari, kurs turi va boshlang'ich to'lovni bir joyda kiriting.</p>
+    </div>
+    <form action="/app/students" method="POST" class="form-grid" data-student-create-form>
       <label>
         Familiya
-        <input type="text" name="lastName" required>
+        <input type="text" name="lastName" placeholder="Masalan, Valiyev" required>
       </label>
       <label>
         Ismi
-        <input type="text" name="firstName" required>
+        <input type="text" name="firstName" placeholder="Masalan, Ali" required>
       </label>
       <label>
         Telefon
-        <input type="tel" name="phone" required>
+        <input type="tel" name="phone" placeholder="+998 90 123 45 67" required>
       </label>
       <label>
         Filial
@@ -29,46 +32,73 @@
       </label>
       <label>
         Kurs turi
-        <select name="courseType" required>
+        <select name="courseType" required data-course-type-select>
           <option value="express">Tezkor kurs</option>
           <option value="standard">To'liq kurs</option>
         </select>
       </label>
       <label>
         Kurs narxi
-        <input type="number" name="totalPrice" min="0" required>
+        <input type="number" name="totalPrice" min="0" placeholder="6000000" required>
       </label>
-      <label>
-        To'lov
-        <input type="number" name="amountPaid" min="0">
-      </label>
-      <label>
-        Boshlang'ich to'lov
-        <input type="number" name="initialPayment" min="0">
-      </label>
-      <label>
-        2-to'lov
-        <input type="number" name="secondPayment" min="0">
-      </label>
-      <label>
-        3-to'lov
-        <input type="number" name="thirdPayment" min="0">
-      </label>
-      <label>
-        Guruh ID
-        <input type="text" name="groupId">
-      </label>
-      <label>
-        Shartnoma raqami
-        <input type="text" name="contractNumber">
-      </label>
+
+      <div class="form-panel span-2" data-course-panel="express">
+        <div class="form-panel-header">
+          <strong>Tezkor kurs to'lovi</strong>
+          <span>Bitta to'lov bilan ishlaydi</span>
+        </div>
+        <div class="field-row">
+          <label>
+            To'lov summasi
+            <input type="number" name="amountPaid" min="0" placeholder="0">
+          </label>
+        </div>
+      </div>
+
+      <div class="form-panel span-2 is-hidden" data-course-panel="standard">
+        <div class="form-panel-header">
+          <strong>To'liq kurs ma'lumotlari</strong>
+          <span>Bo'lib-bo'lib to'lov va guruh biriktirish uchun</span>
+        </div>
+        <div class="field-row">
+          <label>
+            Boshlang'ich to'lov
+            <input type="number" name="initialPayment" min="0" placeholder="0">
+          </label>
+          <label>
+            2-to'lov
+            <input type="number" name="secondPayment" min="0" placeholder="0">
+          </label>
+          <label>
+            3-to'lov
+            <input type="number" name="thirdPayment" min="0" placeholder="0">
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            Guruh
+            <select name="groupId">
+              <option value="">Guruhni tanlang</option>
+              {{#each groups}}
+                <option value="{{id}}">{{branchName}} — {{name}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label>
+            Shartnoma raqami
+            <input type="text" name="contractNumber" placeholder="Masalan, C-201">
+          </label>
+        </div>
+      </div>
+
       <label class="span-2">
         Izoh
-        <textarea name="notes" rows="3"></textarea>
+        <textarea name="notes" rows="3" placeholder="Qo'shimcha eslatma"></textarea>
       </label>
+
       <div class="modal-actions span-2">
         <button class="btn-secondary" type="button" data-modal-close="student-create-modal">Bekor qilish</button>
-        <button class="btn-primary" type="submit">Saqlash</button>
+        <button class="btn-primary" type="submit">Talabani saqlash</button>
       </div>
     </form>
   </div>

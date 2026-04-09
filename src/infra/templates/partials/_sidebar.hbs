@@ -1,16 +1,21 @@
 <aside class="sidebar">
   <div class="sidebar-header">
-    <h3>🎓 EduCRM</h3>
-    <span class="user-role-badge {{user.role}}">{{user.role}}</span>
+    <div>
+      <p class="sidebar-eyebrow">Boshqaruv paneli</p>
+      <h3>Auto Test CRM</h3>
+    </div>
+    <span class="user-role-badge {{user.role}}">
+      {{#if user.isOwner}}Owner{{else}}Manager{{/if}}
+    </span>
   </div>
   <nav class="sidebar-menu">
-    <a href="/app/dashboard" class="menu-item {{activeClass currentPage 'dashboard'}}">📊 Dashboard</a>
-    <a href="/app/students" class="menu-item {{activeClass currentPage 'students'}}">👥 Talabalar</a>
+    <a href="/app/dashboard" class="menu-item {{activeClass currentPage 'dashboard'}}">Dashboard</a>
+    <a href="/app/students" class="menu-item {{activeClass currentPage 'students'}}">Talabalar</a>
     {{#if user.isOwner}}
-      <a href="/app/branches" class="menu-item {{activeClass currentPage 'branches'}}">🏢 Filiallar <span class="badge">{{branchCount}}</span></a>
-      <a href="/app/managers" class="menu-item {{activeClass currentPage 'managers'}}">👤 Operatorlar</a>
-      <a href="/app/reports" class="menu-item {{activeClass currentPage 'reports'}}">📈 Hisobotlar</a>
-      <a href="/app/groups/overview" class="menu-item {{activeClass currentPage 'groups'}}">🧑‍🏫 Guruhlar</a>
+      <a href="/app/branches" class="menu-item {{activeClass currentPage 'branches'}}">Filiallar <span class="badge">{{branchCount}}</span></a>
+      <a href="/app/managers" class="menu-item {{activeClass currentPage 'managers'}}">Operatorlar</a>
+      <a href="/app/reports" class="menu-item {{activeClass currentPage 'reports'}}">Hisobotlar</a>
+      <a href="/app/groups/overview" class="menu-item {{activeClass currentPage 'groups'}}">Guruhlar</a>
     {{else}}
       <div class="sidebar-branch-info">
         <small>Filial</small>
@@ -20,7 +25,7 @@
   </nav>
   <div class="sidebar-footer">
     <form action="/app/logout" method="POST">
-      <button type="submit" class="btn-logout">🚪 Chiqish</button>
+      <button type="submit" class="btn-logout">Chiqish</button>
     </form>
   </div>
 </aside>

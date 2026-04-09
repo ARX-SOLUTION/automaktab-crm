@@ -32,6 +32,7 @@ export class PagesService {
     return this.templates.render('login', {
       title: 'Kirish',
       pageTitle: 'Kirish',
+      pageDescription: 'Auto Test CRM tizimiga kirib, filial va talabalarni boshqaring.',
       currentPage: 'login',
       pageScript: 'auth',
       error: this.resolveLoginError(error),
@@ -45,6 +46,8 @@ export class PagesService {
     return this.templates.render('dashboard', {
       title: 'Dashboard',
       pageTitle: "Umumiy ko'rinish",
+      pageDescription:
+        "Bugungi ko'rsatkichlar, filiallar kesimidagi holat va tezkor boshqaruv uchun umumiy panel.",
       currentPage: 'dashboard',
       pageScript: 'dashboard',
       user,
@@ -69,23 +72,28 @@ export class PagesService {
   }
 
   async renderStudents(user: TemplateUserContext, query: SsrStudentsQueryDto) {
-    const result = await this.studentsService.findAllForSsr(
-      {
-        page: query.page,
-        limit: query.limit,
-        branchId: query.branchId,
-        search: query.search,
-        courseType: query.courseType,
-        status: query.status,
-      },
-      user,
-    );
-    const branches = await this.branchesService.findAll(user);
+    const [result, branches, groups] = await Promise.all([
+      this.studentsService.findAllForSsr(
+        {
+          page: query.page,
+          limit: query.limit,
+          branchId: query.branchId,
+          search: query.search,
+          courseType: query.courseType,
+          status: query.status,
+        },
+        user,
+      ),
+      this.branchesService.findAll(user),
+      this.groupsService.findAll({}, user),
+    ]);
     const summary = this.studentsService.calculateSummary(result.students);
 
     return this.templates.render('students', {
       title: 'Talabalar',
       pageTitle: "Talabalar ro'yxati",
+      pageDescription:
+        "Tezkor va to'liq kurs talabalari, to'lovlar holati hamda amaliy boshqaruv bir joyda.",
       currentPage: 'students',
       pageScript: 'students',
       user,
@@ -93,6 +101,12 @@ export class PagesService {
       isManager: user.isManager,
       branchCount: branches.length,
       branches: branches.map((branch) => ({ id: branch.id, name: branch.name })),
+      groups: groups.map((group) => ({
+        id: group.id,
+        name: group.name,
+        branchId: group.branchId,
+        branchName: group.branchName,
+      })),
       students: result.students,
       meta: result.meta,
       summary,
@@ -116,6 +130,7 @@ export class PagesService {
     return this.templates.render('branches', {
       title: 'Filiallar',
       pageTitle: 'Filiallar',
+      pageDescription: "Filial ma'lumotlarini yangilang va yangi filiallarni boshqaruv tizimiga qo'shing.",
       currentPage: 'branches',
       pageScript: 'branches',
       user,
@@ -139,6 +154,8 @@ export class PagesService {
     return this.templates.render('managers', {
       title: 'Operatorlar',
       pageTitle: 'Operatorlar',
+      pageDescription:
+        "Har bir filial operatorini nazorat qiling, kontaktlarini yangilang va hisoblarini boshqaring.",
       currentPage: 'managers',
       pageScript: 'managers',
       user,
@@ -169,6 +186,8 @@ export class PagesService {
     return this.templates.render('reports', {
       title: 'Hisobotlar',
       pageTitle: 'Hisobotlar',
+      pageDescription:
+        "Filiallar bo'yicha tushum, qarzdorlik va kurs kesimidagi moliyaviy ko'rsatkichlarni kuzating.",
       currentPage: 'reports',
       pageScript: 'reports',
       user,
@@ -197,6 +216,8 @@ export class PagesService {
     return this.templates.render('groups-overview', {
       title: 'Guruhlar',
       pageTitle: 'Guruhlar',
+      pageDescription:
+        "Filiallar kesimidagi guruhlar holati va ularning faol talabalar sonini tez ko'ring.",
       currentPage: 'groups',
       pageScript: 'groups',
       user,

@@ -1,6 +1,22 @@
 {{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
-  <div class="page-toolbar">
-    <form class="filters-bar" method="GET" action="/app/students">
+  <div class="page-stack">
+    <section class="page-hero">
+      <div class="page-hero-copy">
+        <span class="page-eyebrow">Talabalar boshqaruvi</span>
+        <h1 class="page-title">{{pageTitle}}</h1>
+        <p class="page-description">{{pageDescription}}</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn-secondary" href="/app/students">Tozalash</a>
+        <button class="btn-primary" type="button" data-modal-open="student-create-modal">Talaba qo'shish</button>
+      </div>
+    </section>
+
+    <form class="filters-bar filter-card" method="GET" action="/app/students">
+      <div class="filter-group">
+        <label>Qidiruv</label>
+        <input type="search" name="search" value="{{filters.search}}" placeholder="Ism, familya yoki telefon">
+      </div>
       <div class="filter-group">
         <label>Filial</label>
         <select name="branchId" {{#unless user.isOwner}}disabled{{/unless}}>
@@ -8,52 +24,86 @@
         </select>
       </div>
       <div class="filter-group">
-        <label>Holat</label>
-        <select name="status">
-          <option value="">Barchasi</option>
-          <option value="paid" {{ifEquals filters.status 'paid' 'selected'}}>✅ To'langan</option>
-          <option value="unpaid" {{ifEquals filters.status 'unpaid' 'selected'}}>❌ Qarzdor</option>
-        </select>
-      </div>
-      <div class="filter-group">
         <label>Kurs turi</label>
         <select name="courseType">
-          <option value="">Barchasi</option>
+          <option value="">Barcha kurslar</option>
           <option value="express" {{ifEquals filters.courseType 'express' 'selected'}}>Tezkor kurs</option>
           <option value="standard" {{ifEquals filters.courseType 'standard' 'selected'}}>To'liq kurs</option>
         </select>
       </div>
-      <div class="filter-group search">
-        <label>Qidiruv</label>
-        <input type="search" name="search" value="{{filters.search}}" placeholder="Ism yoki telefon">
+      <div class="filter-group">
+        <label>To'lov holati</label>
+        <select name="status">
+          <option value="">Barchasi</option>
+          <option value="paid" {{ifEquals filters.status 'paid' 'selected'}}>To'langan</option>
+          <option value="unpaid" {{ifEquals filters.status 'unpaid' 'selected'}}>Qarzdor</option>
+        </select>
       </div>
-      <button class="btn-secondary" type="submit">Filtrlash</button>
+      <div class="filter-actions">
+        <button class="btn-secondary" type="submit">Filtrni qo'llash</button>
+        <a class="btn-ghost" href="/app/students">Tozalash</a>
+      </div>
     </form>
-    <button class="btn-primary" type="button" data-modal-open="student-create-modal">+ Talaba qo'shish</button>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-body">
+          <span class="stat-label">Sahifadagi talabalar</span>
+          <h3>{{meta.total}}</h3>
+          <small>Joriy filter bo'yicha natija</small>
+        </div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-body">
+          <span class="stat-label">Jami tushum</span>
+          <h3>{{formatUZS summary.totalPaid}}</h3>
+          <small>{{stats.paidCount}} ta to'langan talaba</small>
+        </div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-body">
+          <span class="stat-label">Qarzdorlik</span>
+          <h3>{{formatUZS summary.totalDebt}}</h3>
+          <small>{{stats.debtCount}} ta qarzdor talaba</small>
+        </div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-body">
+          <span class="stat-label">Jami kontrakt</span>
+          <h3>{{formatUZS summary.totalPrices}}</h3>
+          <small>Umumiy kurs narxlari</small>
+        </div>
+      </div>
+    </div>
+
+    <section class="data-card">
+      {{> student-table students=students summary=summary isOwner=user.isOwner}}
+
+      {{#if meta.totalPages}}
+        <div class="table-section-footer">
+          {{> pagination meta=meta filters=filters}}
+        </div>
+      {{/if}}
+    </section>
+
+    {{> student-form-modal user=user branches=branches groups=groups}}
   </div>
-
-  {{> student-table students=students summary=summary isOwner=user.isOwner}}
-
-  {{#if meta.totalPages}}
-    {{> pagination meta=meta filters=filters}}
-  {{/if}}
-
-  <div class="bottom-stats">
-    <div class="stat-item"><span class="icon">✅</span><span class="label">To'langan talabalar</span><span class="value">{{stats.paidCount}}</span></div>
-    <div class="stat-item"><span class="icon">❌</span><span class="label">Qarzdor talabalar</span><span class="value">{{stats.debtCount}}</span></div>
-    <div class="stat-item"><span class="icon">💰</span><span class="label">Jami yig'ilgan</span><span class="value">{{formatUZS summary.totalPaid}}</span></div>
-    <div class="stat-item"><span class="icon">📊</span><span class="label">Jami kontrakt</span><span class="value">{{formatUZS summary.totalPrices}}</span></div>
-  </div>
-
-  {{> student-form-modal user=user branches=branches}}
 
   <section class="management-section">
-    <h3>Tahrirlash va to'lov amallari</h3>
+    <div class="section-heading">
+      <div>
+        <h3>Tahrirlash va to'lov amallari</h3>
+        <p>Har bir talaba bo'yicha ma'lumot, to'lov va o'chirish amallarini modal orqali boshqaring.</p>
+      </div>
+    </div>
     {{#each students}}
       <div class="modal embedded-modal" id="student-edit-{{id}}">
         <div class="modal-content modal-xl">
           <button class="modal-close" type="button" data-modal-close="student-edit-{{id}}">×</button>
-          <h4>{{lastName}} {{firstName}}</h4>
+          <div class="modal-header">
+            <h4>{{lastName}} {{firstName}}</h4>
+            <p>{{courseTypeLabel courseType}} • {{branch.name}}</p>
+          </div>
           <div class="embedded-grid">
             <form action="/app/students/{{id}}/update" method="POST" class="form-grid">
               <label>Familiya<input type="text" name="lastName" value="{{lastName}}" required></label>
@@ -61,7 +111,15 @@
               <label>Telefon<input type="text" name="phone" value="{{phone}}" required></label>
               <label>Kurs narxi<input type="number" name="totalPrice" value="{{totalPrice}}" min="0"></label>
               {{#ifEquals courseType 'standard'}}
-                <label>Guruh ID<input type="text" name="groupId" value="{{#if group}}{{group.id}}{{/if}}"></label>
+                <label>
+                  Guruh
+                  <select name="groupId">
+                    <option value="">Guruhni tanlang</option>
+                    {{#each ../groups}}
+                      <option value="{{id}}" {{ifEquals ../group.id id 'selected'}}>{{branchName}} — {{name}}</option>
+                    {{/each}}
+                  </select>
+                </label>
                 <label>Shartnoma<input type="text" name="contractNumber" value="{{contractNumber}}"></label>
               {{/ifEquals}}
               <label class="span-2">Izoh<textarea name="notes" rows="3">{{notes}}</textarea></label>

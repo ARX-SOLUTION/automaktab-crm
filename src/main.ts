@@ -24,7 +24,6 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true }));
   app.use((request: Request, _response: Response, next: NextFunction) => {
     request.body = sanitizeEmptyStrings(request.body);
-    request.query = sanitizeEmptyStrings(request.query) as Request['query'];
     next();
   });
 

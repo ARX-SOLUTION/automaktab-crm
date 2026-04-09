@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kirish — EduCRM</title>
+  <title>Kirish — Auto Test CRM</title>
   <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body class="auth-page">
   <div class="auth-card">
     <div class="auth-header">
-      <h1>🎓 EduCRM</h1>
-      <p>Auto Test CRM tizimiga kiring</p>
+      <span class="auth-kicker">Auto Test CRM</span>
+      <h1>Tizimga kirish</h1>
+      <p>{{pageDescription}}</p>
     </div>
     {{#if error}}
       <div class="alert alert-error">{{error}}</div>
@@ -24,10 +25,10 @@
         <label for="password">Parol</label>
         <input id="password" type="password" name="password" required autocomplete="current-password">
       </div>
-      <button type="submit" class="btn-primary btn-block">🔐 Kirish</button>
+      <button type="submit" class="btn-primary btn-block">Kirish</button>
     </form>
     <div class="auth-footer">
-      <small>© 2025 Auto Test CRM</small>
+      <small>Filiallar, talabalar va hisobotlar bir joyda.</small>
     </div>
   </div>
   <script src="/js/auth.js"></script>

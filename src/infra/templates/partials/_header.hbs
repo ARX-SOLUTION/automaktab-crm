@@ -1,11 +1,20 @@
 <header class="top-bar">
   <div class="top-bar-left">
-    <h2>{{pageTitle}}</h2>
+    <div class="top-bar-brand">
+      <span class="top-bar-kicker">Auto Test CRM</span>
+      <strong>{{pageTitle}}</strong>
+    </div>
     {{#if user.branchName}}
-      <span class="branch-chip">📍 {{user.branchName}}</span>
+      <span class="branch-chip">{{user.branchName}}</span>
     {{/if}}
   </div>
   <div class="top-bar-right">
-    <span class="user-info">👤 {{user.fullName}} <small>({{user.role}})</small></span>
+    <div class="user-info">
+      <span class="user-avatar">AT</span>
+      <span class="user-copy">
+        <strong>{{user.fullName}}</strong>
+        <small>{{#if user.isOwner}}Tizim egasi{{else}}Filial operatori{{/if}}</small>
+      </span>
+    </div>
   </div>
 </header>

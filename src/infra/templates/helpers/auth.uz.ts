@@ -26,12 +26,12 @@ export function registerAuthHelpers(handlebars: typeof Handlebars): void {
     user: { isOwner: boolean },
   ) {
     const buttons = [
-      `<button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-${studentId}" title="Tahrirlash">✏️</button>`,
+      `<button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-${studentId}" title="Tahrirlash">Tahrir</button>`,
     ];
 
     if (user.isOwner) {
       buttons.push(
-        `<button class="btn-icon btn-delete" type="button" data-delete-id="${studentId}" data-modal-open="delete-modal" title="O'chirish">🗑️</button>`,
+        `<button class="btn-icon btn-delete" type="button" data-delete-id="${studentId}" data-modal-open="delete-modal" title="O'chirish">O'chir</button>`,
       );
     }
 

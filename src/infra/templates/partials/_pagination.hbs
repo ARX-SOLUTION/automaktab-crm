@@ -1,13 +1,13 @@
 <nav class="pagination">
   {{#if meta.hasPreviousPage}}
     <a class="pagination-link" href="?page={{add meta.page -1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">
-      ← Oldingi
+      Oldingi
     </a>
   {{/if}}
-  <span class="pagination-status">{{meta.page}} / {{meta.totalPages}}</span>
+  <span class="pagination-status">{{meta.page}} / {{meta.totalPages}} sahifa</span>
   {{#if meta.hasNextPage}}
     <a class="pagination-link" href="?page={{add meta.page 1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">
-      Keyingi →
+      Keyingi
     </a>
   {{/if}}
 </nav>

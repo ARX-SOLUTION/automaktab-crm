@@ -1,43 +1,151 @@
+.table-shell {
+  width: 100%;
+}
+
 .table-wrapper {
-  overflow: auto;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  width: 100%;
+  overflow-x: auto;
   border-radius: 18px;
 }
 
+.data-table,
 .students-table {
   width: 100%;
-  border-collapse: collapse;
-  min-width: 1320px;
+  min-width: 2100px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
 }
 
+.compact-table {
+  min-width: 720px;
+}
+
+.students-table col.col-index {
+  width: 56px;
+}
+
+.students-table col.col-name {
+  width: 220px;
+}
+
+.students-table col.col-phone,
+.students-table col.col-branch,
+.students-table col.col-course,
+.students-table col.col-method,
+.students-table col.col-operator {
+  width: 140px;
+}
+
+.students-table col.col-money {
+  width: 116px;
+}
+
+.students-table col.col-bool {
+  width: 84px;
+}
+
+.students-table col.col-status {
+  width: 118px;
+}
+
+.students-table col.col-meta {
+  width: 180px;
+}
+
+.students-table col.col-notes {
+  width: 190px;
+}
+
+.students-table col.col-actions {
+  width: 120px;
+}
+
+.data-table th,
+.data-table td,
 .students-table th,
 .students-table td {
-  padding: 0.8rem 0.9rem;
+  padding: 0.9rem 0.85rem;
   border-bottom: 1px solid #e2e8f0;
-  vertical-align: top;
+  vertical-align: middle;
+  background: #ffffff;
 }
 
+.data-table thead th,
 .students-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   background: #f8fafc;
-  font-size: 0.85rem;
+  color: #64748b;
+  font-size: 0.77rem;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+  text-align: left;
+  white-space: nowrap;
 }
 
-.summary-row td {
-  background: #f8fafc;
+.data-table tbody tr:nth-child(even) td,
+.students-table tbody tr:nth-child(even) td {
+  background: #fbfcfe;
+}
+
+.data-table tbody tr:hover td,
+.students-table tbody tr:hover td {
+  background: #eff6ff;
+}
+
+.data-table td,
+.students-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #1e293b;
+  font-size: 0.92rem;
+}
+
+.students-table .cell-primary strong,
+.students-table .cell-stack strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell-stack {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.cell-muted {
+  color: #7b8aa0;
+  font-size: 0.78rem;
+}
+
+.cell-truncate {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .actions-cell {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.bottom-stats .stat-item {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 1rem;
-  display: grid;
-  gap: 0.3rem;
+.summary-row td {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.summary-row.paid td {
+  color: #166534;
+}
+
+.summary-row.debt td {
+  color: #991b1b;
 }

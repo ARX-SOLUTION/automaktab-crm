@@ -24,6 +24,7 @@ describe('TemplateService', () => {
       pageTitle: "Talabalar ro'yxati",
       currentPage: 'students',
       pageScript: 'students',
+      pageDescription: "Talabalar ro'yxati va to'lov holati",
       user: ownerUser,
       isOwner: true,
       isManager: false,
@@ -31,6 +32,9 @@ describe('TemplateService', () => {
       branches: [
         { id: 'branch-1', name: 'Minor' },
         { id: 'branch-2', name: 'Samarqand' },
+      ],
+      groups: [
+        { id: 'group-1', name: 'B-1', branchId: 'branch-1', branchName: 'Minor' },
       ],
       students: [
         {
@@ -89,9 +93,9 @@ describe('TemplateService', () => {
     expect(html).toContain('<th>F.I.SH</th>');
     expect(html).toContain('<th>Qoldiq</th>');
     expect(html).toContain('<th>Amallar</th>');
-    expect(html).toContain("JAMI NATIJA");
-    expect(html).toContain("✅ JAMI TO'LANGAN");
-    expect(html).toContain("❌ JAMI QOLDIQ (QARZDORLIK)");
+    expect(html).toContain("Jami natija");
+    expect(html).toContain("Jami to'langan");
+    expect(html).toContain("Jami qoldiq");
     expect(html).toContain('soʻm');
   });
 
@@ -101,6 +105,7 @@ describe('TemplateService', () => {
       pageTitle: "Umumiy ko'rinish",
       currentPage: 'dashboard',
       pageScript: 'dashboard',
+      pageDescription: "Umumiy ko'rinish",
       user: {
         ...ownerUser,
         role: 'manager',
@@ -141,6 +146,7 @@ describe('TemplateService', () => {
     await service.render('login', {
       title: 'Kirish',
       pageTitle: 'Kirish',
+      pageDescription: 'Tizimga kirish',
       currentPage: 'login',
       pageScript: 'auth',
       error: undefined,
@@ -151,6 +157,7 @@ describe('TemplateService', () => {
     await service.render('login', {
       title: 'Kirish',
       pageTitle: 'Kirish',
+      pageDescription: 'Tizimga kirish',
       currentPage: 'login',
       pageScript: 'auth',
       error: undefined,

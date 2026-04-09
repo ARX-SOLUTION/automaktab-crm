@@ -1,47 +1,107 @@
 {{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
-  <form class="filters-bar" method="GET" action="/app/reports">
-    <div class="filter-group">
-      <label>Filial</label>
-      <select name="branchId">
-        <option value="">Barchasi</option>
-        {{#each branches}}
-          <option value="{{id}}" {{ifEquals ../filters.branchId id 'selected'}}>{{name}}</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="filter-group">
-      <label>Kurs turi</label>
-      <select name="courseType">
-        <option value="">Barchasi</option>
-        <option value="express" {{ifEquals filters.courseType 'express' 'selected'}}>Tezkor kurs</option>
-        <option value="standard" {{ifEquals filters.courseType 'standard' 'selected'}}>To'liq kurs</option>
-      </select>
-    </div>
-    <div class="filter-group">
-      <label>Boshlanish</label>
-      <input type="date" name="startDate" value="{{filters.startDate}}">
-    </div>
-    <div class="filter-group">
-      <label>Tugash</label>
-      <input type="date" name="endDate" value="{{filters.endDate}}">
-    </div>
-    <button class="btn-secondary" type="submit">Qo'llash</button>
-  </form>
+  <div class="page-stack">
+    <section class="page-hero">
+      <div class="page-hero-copy">
+        <span class="page-eyebrow">Moliyaviy nazorat</span>
+        <h1 class="page-title">{{pageTitle}}</h1>
+        <p class="page-description">{{pageDescription}}</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn-secondary" href="/app/reports">Tozalash</a>
+      </div>
+    </section>
 
-  <div class="stats-grid">
-    <div class="stat-card success"><div class="stat-body"><h3>{{formatUZS revenue.totalRevenue}}</h3><p>Jami tushum</p></div></div>
-    <div class="stat-card warning"><div class="stat-body"><h3>{{formatUZS revenue.totalDebt}}</h3><p>Qarzdorlik</p></div></div>
-    <div class="stat-card"><div class="stat-body"><h3>{{revenue.totalStudents}}</h3><p>Talabalar</p></div></div>
-  </div>
+    <form class="filters-bar filter-card" method="GET" action="/app/reports">
+      <div class="filter-group">
+        <label>Filial</label>
+        <select name="branchId">
+          <option value="">Barcha filiallar</option>
+          {{#each branches}}
+            <option value="{{id}}" {{ifEquals ../filters.branchId id 'selected'}}>{{name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Kurs turi</label>
+        <select name="courseType">
+          <option value="">Barchasi</option>
+          <option value="express" {{ifEquals filters.courseType 'express' 'selected'}}>Tezkor kurs</option>
+          <option value="standard" {{ifEquals filters.courseType 'standard' 'selected'}}>To'liq kurs</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Boshlanish sanasi</label>
+        <input type="date" name="startDate" value="{{filters.startDate}}">
+      </div>
+      <div class="filter-group">
+        <label>Tugash sanasi</label>
+        <input type="date" name="endDate" value="{{filters.endDate}}">
+      </div>
+      <div class="filter-actions">
+        <button class="btn-secondary" type="submit">Hisobotni yangilash</button>
+        <a class="btn-ghost" href="/app/reports">Tozalash</a>
+      </div>
+    </form>
 
-  <div class="resource-list">
-    {{#each revenue.byBranch}}
-      <article class="resource-card">
-        <h4>{{branchName}}</h4>
-        <p>Tushum: {{formatUZS revenue}}</p>
-        <p>Qarzdorlik: {{formatUZS debt}}</p>
-        <p>Talabalar: {{studentCount}}</p>
-      </article>
-    {{/each}}
+    <div class="stats-grid">
+      <div class="stat-card success">
+        <div class="stat-body">
+          <span class="stat-label">Jami tushum</span>
+          <h3>{{formatUZS revenue.totalRevenue}}</h3>
+          <small>Tanlangan oraliq bo'yicha tushum</small>
+        </div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-body">
+          <span class="stat-label">Qarzdorlik</span>
+          <h3>{{formatUZS revenue.totalDebt}}</h3>
+          <small>Faol talabalar qarzdorligi</small>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-body">
+          <span class="stat-label">Talabalar soni</span>
+          <h3>{{revenue.totalStudents}}</h3>
+          <small>Hisobotga tushgan talabalar</small>
+        </div>
+      </div>
+    </div>
+
+    <section class="data-card">
+      <div class="section-heading">
+        <div>
+          <h3>Filiallar kesimida tushum</h3>
+          <p>Har bir filialning tushum va qarzdorlik ko'rsatkichlari.</p>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table compact-table">
+          <thead>
+            <tr>
+              <th>Filial</th>
+              <th class="text-right">Tushum</th>
+              <th class="text-right">Qarzdorlik</th>
+              <th class="text-right">Talabalar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if revenue.byBranch.length}}
+              {{#each revenue.byBranch}}
+                <tr>
+                  <td>{{branchName}}</td>
+                  <td class="text-right tabular-nums">{{formatUZS revenue}}</td>
+                  <td class="text-right tabular-nums {{debtClass debt}}">{{formatUZS debt}}</td>
+                  <td class="text-right tabular-nums">{{studentCount}}</td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="4">{{> empty-state message="Tanlangan filter bo'yicha hisobot topilmadi" icon="—" }}</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </section>
   </div>
 {{/main}}
