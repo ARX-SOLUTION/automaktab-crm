@@ -2,7 +2,6 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
 
 import { GlobalExceptionFilter } from '@core/filters';
@@ -33,14 +32,19 @@ async function bootstrap() {
   );
 
   const corsWhitelist = configService.get<string>('CORS_WHITELIST', '');
+  const corsOrigins = corsWhitelist
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: corsWhitelist.split(',').map((origin) => origin.trim()),
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
     credentials: true,
   });
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
       transformOptions: {
         enableImplicitConversion: true,
@@ -55,36 +59,23 @@ async function bootstrap() {
   );
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Backend API')
-    .setDescription('Backend API Documentation')
+    .setTitle('Auto Test CRM API')
+    .setDescription('Driving school management system')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
 
-  const swaggerUsername = configService.get<string>('SWAGGER_USERNAME', 'admin');
-  const swaggerPassword = configService.get<string>('SWAGGER_PASSWORD', 'admin');
-
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-
-  app.use(
-    '/docs',
-    basicAuth({
-      users: { [swaggerUsername]: swaggerPassword },
-      challenge: true,
-      realm: 'Swagger',
-    }),
-  );
-
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
   app.enableShutdownHooks();
 
-  const port = configService.get<number>('PORT', 4000);
+  const port = configService.get<number>('PORT', 3000);
 
   await app.listen(port);
 
   logger.log(`Application is running on: http://localhost:${port}`);
-  logger.log(`Swagger documentation: http://localhost:${port}/docs`);
+  logger.log(`Swagger documentation: http://localhost:${port}/api/docs`);
   logger.log(`Health check: http://localhost:${port}/health`);
 }
 

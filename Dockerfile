@@ -1,26 +1,36 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+RUN corepack enable
+
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+FROM deps AS builder
 
 COPY . .
-RUN npm run prisma:generate
-RUN npm run build
+RUN pnpm prisma:generate
+RUN pnpm build
+RUN HUSKY=0 pnpm prune --prod --ignore-scripts
 
 FROM node:20-alpine AS production
 
 WORKDIR /app
 
-COPY --from=builder --chown=node:node /app/dist ./dist
-COPY --from=builder --chown=node:node /app/node_modules ./node_modules
-COPY --from=builder --chown=node:node /app/package*.json ./
-COPY --from=builder --chown=node:node /app/generated ./generated
-COPY --from=builder --chown=node:node /app/prisma ./prisma
+RUN corepack enable
 
-USER node
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/prisma ./prisma
 
-EXPOSE 4000
+ENV NODE_ENV=production
+ENV PORT=3000
 
-CMD ["node", "dist/main"]
+EXPOSE 3000
+
+CMD ["node", "dist/src/main.js"]
