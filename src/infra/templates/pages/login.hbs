@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kirish — EduCRM</title>
+  <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>🎓 EduCRM</h1>
+      <p>Auto Test CRM tizimiga kiring</p>
+    </div>
+    {{#if error}}
+      <div class="alert alert-error">{{error}}</div>
+    {{/if}}
+    <form id="loginForm" action="/app/login" method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="phone">Telefon raqami</label>
+        <input id="phone" type="tel" name="phone" placeholder="+998 90 123 45 67" required autocomplete="tel">
+      </div>
+      <div class="form-group">
+        <label for="password">Parol</label>
+        <input id="password" type="password" name="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-primary btn-block">🔐 Kirish</button>
+    </form>
+    <div class="auth-footer">
+      <small>© 2025 Auto Test CRM</small>
+    </div>
+  </div>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

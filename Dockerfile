@@ -27,6 +27,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/public ./public
 
 ENV NODE_ENV=production
 ENV PORT=3000

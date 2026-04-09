@@ -44,6 +44,15 @@ type StudentEntity = Prisma.StudentGetPayload<{
   };
 }>;
 
+type SsrStudentQuery = {
+  page?: number;
+  limit?: number;
+  branchId?: string;
+  search?: string;
+  courseType?: CourseType;
+  status?: 'paid' | 'unpaid';
+};
+
 @Injectable()
 export class StudentsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -66,24 +75,15 @@ export class StudentsService {
     const skip = (page - 1) * limit;
     const courseType = query.courseType ?? CourseType.express;
 
-    const where: Prisma.StudentWhereInput = {
-      deletedAt: null,
-      courseType,
-      ...(currentUser.role === Role.manager && currentUser.branchId
-        ? { branchId: currentUser.branchId }
-        : {}),
-      ...(currentUser.role === Role.owner && query.branchId ? { branchId: query.branchId } : {}),
-      ...(query.status ? { status: query.status } : {}),
-      ...(query.search
-        ? {
-            OR: [
-              { firstName: { contains: query.search, mode: 'insensitive' } },
-              { lastName: { contains: query.search, mode: 'insensitive' } },
-              { phone: { contains: query.search } },
-            ],
-          }
-        : {}),
-    };
+    const where = this.buildStudentWhere(
+      {
+        branchId: query.branchId,
+        search: query.search,
+        courseType,
+      },
+      currentUser,
+      query.status ? { status: query.status } : {},
+    );
 
     const [students, total] = await Promise.all([
       this.prisma.student.findMany({
@@ -112,6 +112,148 @@ export class StudentsService {
       data: students.map((student) => StudentResponse.fromEntity(student)),
       meta,
     };
+  }
+
+  async findAllForSsr(query: SsrStudentQuery, currentUser: CurrentUserPayload) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const skip = (page - 1) * limit;
+    const where = this.buildStudentWhere(
+      {
+        branchId: query.branchId,
+        search: query.search,
+        courseType: query.courseType,
+      },
+      currentUser,
+      query.status === 'paid'
+        ? { debt: { lte: 0 } }
+        : query.status === 'unpaid'
+          ? { debt: { gt: 0 } }
+          : {},
+    );
+
+    const [students, total] = await Promise.all([
+      this.prisma.student.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: this.studentInclude,
+      }),
+      this.prisma.student.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit) || 1;
+
+    return {
+      students: students.map((student) =>
+        this.toSsrStudentRow(StudentResponse.fromEntity(student)),
+      ),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
+  }
+
+  async getDashboardStats(
+    currentUser: CurrentUserPayload,
+    query: Omit<SsrStudentQuery, 'page' | 'limit'> = {},
+  ): Promise<{
+    totalStudents: number;
+    paidCount: number;
+    debtCount: number;
+    totalPaid: number;
+    totalDebt: number;
+    branchDebt: number;
+  }> {
+    const where = this.buildStudentWhere(
+      {
+        branchId: query.branchId,
+        search: query.search,
+        courseType: query.courseType,
+      },
+      currentUser,
+      query.status === 'paid'
+        ? { debt: { lte: 0 } }
+        : query.status === 'unpaid'
+          ? { debt: { gt: 0 } }
+          : {},
+    );
+
+    const students = await this.prisma.student.findMany({
+      where,
+      select: {
+        totalPrice: true,
+        debt: true,
+      },
+    });
+
+    return students.reduce(
+      (acc, student) => {
+        const debt = Number(student.debt);
+        const totalPrice = Number(student.totalPrice);
+
+        acc.totalStudents += 1;
+        acc.totalDebt += debt;
+        acc.branchDebt += debt;
+        acc.totalPaid += totalPrice - debt;
+
+        if (debt > 0) {
+          acc.debtCount += 1;
+        } else {
+          acc.paidCount += 1;
+        }
+
+        return acc;
+      },
+      {
+        totalStudents: 0,
+        paidCount: 0,
+        debtCount: 0,
+        totalPaid: 0,
+        totalDebt: 0,
+        branchDebt: 0,
+      },
+    );
+  }
+
+  calculateSummary(
+    students: Array<{
+      totalPrice: number;
+      initialPayment: number;
+      secondPayment: number;
+      thirdPayment: number;
+      debt: number;
+    }>,
+  ) {
+    return students.reduce(
+      (summary, student) => {
+        summary.totalPrices += student.totalPrice;
+        summary.totalInitial += student.initialPayment;
+        summary.totalSecond += student.secondPayment;
+        summary.totalThird += student.thirdPayment;
+        summary.totalPaid +=
+          student.initialPayment + student.secondPayment + student.thirdPayment;
+        summary.totalDebt += student.debt;
+
+        return summary;
+      },
+      {
+        totalPrices: 0,
+        totalInitial: 0,
+        totalSecond: 0,
+        totalThird: 0,
+        totalPaid: 0,
+        totalDebt: 0,
+      },
+    );
   }
 
   async findOne(id: string, currentUser: CurrentUserPayload): Promise<StudentResponse> {
@@ -567,6 +709,50 @@ export class StudentsService {
     }
 
     return PaymentStatus.pending;
+  }
+
+  private buildStudentWhere(
+    filters: {
+      branchId?: string;
+      search?: string;
+      courseType?: CourseType;
+    },
+    currentUser: CurrentUserPayload,
+    extraWhere: Prisma.StudentWhereInput,
+  ): Prisma.StudentWhereInput {
+    return {
+      deletedAt: null,
+      ...(filters.courseType ? { courseType: filters.courseType } : {}),
+      ...(currentUser.role === Role.manager && currentUser.branchId
+        ? { branchId: currentUser.branchId }
+        : {}),
+      ...(currentUser.role === Role.owner && filters.branchId
+        ? { branchId: filters.branchId }
+        : {}),
+      ...(filters.search
+        ? {
+            OR: [
+              { firstName: { contains: filters.search, mode: 'insensitive' } },
+              { lastName: { contains: filters.search, mode: 'insensitive' } },
+              { phone: { contains: filters.search } },
+            ],
+          }
+        : {}),
+      ...extraWhere,
+    };
+  }
+
+  private toSsrStudentRow(student: StudentResponse) {
+    const initialPayment = student.installments?.initialPayment ?? student.amountPaid ?? 0;
+    const secondPayment = student.installments?.secondPayment ?? 0;
+    const thirdPayment = student.installments?.thirdPayment ?? 0;
+
+    return {
+      ...student,
+      initialPayment,
+      secondPayment,
+      thirdPayment,
+    };
   }
 
   private readonly studentInclude = {

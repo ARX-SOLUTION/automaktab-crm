@@ -1,0 +1,67 @@
+{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
+  <section class="resource-section">
+    <h3>Yangi operator</h3>
+    <form action="/app/managers" method="POST" class="form-grid inline-form">
+      <label>F.I.SH<input type="text" name="fullName" required></label>
+      <label>Telefon<input type="text" name="phone" required></label>
+      <label>Parol<input type="password" name="password" required></label>
+      <label>
+        Filial
+        <select name="branchId" required>
+          {{#each branches}}
+            <option value="{{id}}">{{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <button class="btn-primary" type="submit">Operator qo'shish</button>
+    </form>
+  </section>
+
+  <form class="filters-bar" method="GET" action="/app/managers">
+    <div class="filter-group">
+      <label>Filial</label>
+      <select name="branchId">
+        <option value="">Barchasi</option>
+        {{#each branches}}
+          <option value="{{id}}" {{ifEquals ../filters.branchId id 'selected'}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="filter-group search">
+      <label>Qidiruv</label>
+      <input type="search" name="search" value="{{filters.search}}" placeholder="Ism yoki telefon">
+    </div>
+    <button class="btn-secondary" type="submit">Qo'llash</button>
+  </form>
+
+  <div class="resource-list">
+    {{#each managers}}
+      <article class="resource-card">
+        <h4>{{fullName}}</h4>
+        <p>{{phone}}</p>
+        <p>{{branchName}}</p>
+        <p>{{#if isActive}}Faol{{else}}Deaktiv{{/if}}</p>
+        <form action="/app/managers/{{id}}/update" method="POST" class="form-grid inline-form">
+          <label>F.I.SH<input type="text" name="fullName" value="{{fullName}}"></label>
+          <label>Telefon<input type="text" name="phone" value="{{phone}}"></label>
+          <label>
+            Filial
+            <select name="branchId">
+              {{#each ../branches}}
+                <option value="{{id}}" {{ifEquals ../branchId id 'selected'}}>{{name}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <button class="btn-secondary" type="submit">Yangilash</button>
+        </form>
+        <form action="/app/managers/{{id}}/reset-password" method="POST" class="inline-form compact-form">
+          <label>Yangi parol<input type="password" name="newPassword" required></label>
+          <button class="btn-secondary" type="submit">Parolni almashtirish</button>
+        </form>
+        <form action="/app/managers/{{id}}/deactivate" method="POST">
+          <button class="btn-danger" type="submit">Deaktivatsiya</button>
+        </form>
+      </article>
+    {{/each}}
+  </div>
+{{/main}}

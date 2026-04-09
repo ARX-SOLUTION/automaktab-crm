@@ -1,0 +1,175 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.app-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+.sidebar {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-menu {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.menu-item {
+  color: inherit;
+  text-decoration: none;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+}
+
+.menu-item.active,
+.menu-item:hover {
+  background: rgba(148, 163, 184, 0.16);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.sidebar-branch-info {
+  border: 1px solid rgba(226, 232, 240, 0.16);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.main-content {
+  padding: 1.5rem 2rem 2rem;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.stats-grid,
+.bottom-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card,
+.resource-card,
+.panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1rem 1.1rem;
+}
+
+.stat-card {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat-icon {
+  font-size: 2rem;
+}
+
+.filters-bar,
+.form-grid,
+.inline-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.filters-bar {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+}
+
+.filter-group,
+.form-grid label {
+  display: grid;
+  gap: 0.4rem;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  width: 100%;
+}
+
+.resource-list,
+.dashboard-panels,
+.management-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.page-toolbar {
+  display: grid;
+  gap: 1rem;
+}
+
+.plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.embedded-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 960px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .span-2 {
+    grid-column: auto;
+  }
+}

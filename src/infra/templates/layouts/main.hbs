@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}} — EduCRM</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/tables.css">
+  <link rel="stylesheet" href="/css/utilities.css">
+  {{#if isOwner}}<link rel="stylesheet" href="/css/owner.css">{{/if}}
+</head>
+<body class="app-layout">
+  {{> sidebar currentPage=currentPage user=user branchCount=branchCount}}
+  <main class="main-content">
+    {{> header pageTitle=pageTitle user=user}}
+    <div class="page-content">
+      {{#if flash.error}}
+        <div class="alert alert-error">{{flash.error}}</div>
+      {{/if}}
+      {{#if flash.success}}
+        <div class="alert alert-success">{{flash.success}}</div>
+      {{/if}}
+      {{> @partial-block }}
+    </div>
+  </main>
+  {{> confirm-delete-modal }}
+  <script src="/js/main.js"></script>
+  {{#if pageScript}}<script src="/js/{{pageScript}}.js"></script>{{/if}}
+</body>
+</html>

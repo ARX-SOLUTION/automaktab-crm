@@ -1,0 +1,76 @@
+<div class="table-wrapper">
+  <table class="students-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>F.I.SH</th>
+        <th>Telefon</th>
+        <th>Filial</th>
+        <th>Kurs turi</th>
+        <th>Kurs narxi</th>
+        <th>1-to'lov</th>
+        <th>2-to'lov</th>
+        <th>3-to'lov</th>
+        <th>Qoldiq</th>
+        <th>Holat</th>
+        <th>Guruh</th>
+        <th>Shartnoma</th>
+        <th>Operator</th>
+        <th>Amallar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#if students.length}}
+        {{#each students}}
+          <tr data-id="{{id}}" data-course-type="{{courseType}}">
+            <td>{{add @index 1}}</td>
+            <td class="font-medium">{{lastName}} {{firstName}}</td>
+            <td>{{phone}}</td>
+            <td>{{branch.name}}</td>
+            <td><span class="badge badge-course {{courseType}}">{{courseTypeLabel courseType}}</span></td>
+            <td class="text-right">{{formatUZS totalPrice}}</td>
+            <td class="text-right">{{formatUZS initialPayment}}</td>
+            <td class="text-right">{{formatUZS secondPayment}}</td>
+            <td class="text-right">{{formatUZS thirdPayment}}</td>
+            <td class="text-right {{debtClass debt}}"><strong>{{formatUZS debt}}</strong></td>
+            <td>{{debtBadge debt}}</td>
+            <td>{{#if group}}{{group.name}}{{else}}—{{/if}}</td>
+            <td>{{#if contractNumber}}{{contractNumber}}{{else}}—{{/if}}</td>
+            <td>{{registrar.fullName}}</td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-{{id}}" title="Tahrirlash">✏️</button>
+              <button class="btn-icon btn-delete" type="button" data-delete-id="{{id}}" title="O'chirish" data-modal-open="delete-modal">🗑️</button>
+            </td>
+          </tr>
+        {{/each}}
+      {{else}}
+        <tr>
+          <td colspan="15">{{> empty-state message="Hech qanday talaba topilmadi" icon="📭" }}</td>
+        </tr>
+      {{/if}}
+    </tbody>
+    {{#if students.length}}
+      <tfoot>
+        <tr class="summary-row jami-natija">
+          <td colspan="5"><strong>JAMI NATIJA</strong></td>
+          <td class="text-right">{{formatUZS summary.totalPrices}}</td>
+          <td class="text-right">{{formatUZS summary.totalInitial}}</td>
+          <td class="text-right">{{formatUZS summary.totalSecond}}</td>
+          <td class="text-right">{{formatUZS summary.totalThird}}</td>
+          <td class="text-right">{{formatUZS summary.totalDebt}}</td>
+          <td colspan="5"></td>
+        </tr>
+        <tr class="summary-row paid">
+          <td colspan="5"><strong>✅ JAMI TO'LANGAN</strong></td>
+          <td colspan="5" class="text-right text-success"><strong>{{formatUZS summary.totalPaid}}</strong></td>
+          <td colspan="5"></td>
+        </tr>
+        <tr class="summary-row debt">
+          <td colspan="5"><strong>❌ JAMI QOLDIQ (QARZDORLIK)</strong></td>
+          <td colspan="5" class="text-right text-danger"><strong>{{formatUZS summary.totalDebt}}</strong></td>
+          <td colspan="5"></td>
+        </tr>
+      </tfoot>
+    {{/if}}
+  </table>
+</div>

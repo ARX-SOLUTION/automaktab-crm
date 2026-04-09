@@ -1,7 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { join } from 'path';
 
 import { validateEnv } from '@config';
 import { JwtAuthGuard } from '@core/guards';
@@ -16,6 +18,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BranchesModule } from './modules/branches/branches.module';
 import { GroupsModule } from './modules/groups/groups.module';
 import { HealthModule } from './modules/health/health.module';
+import { PagesModule } from './modules/pages/pages.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { StudentsModule } from './modules/students/students.module';
 import { UploadModule } from './modules/upload/upload.module';
@@ -31,6 +34,9 @@ import { UsersModule } from './modules/users/users.module';
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60000, limit: 100 }],
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+    }),
     LoggerModule,
     PrismaModule,
     RedisModule,
@@ -40,6 +46,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     BranchesModule,
     GroupsModule,
+    PagesModule,
     ReportsModule,
     StudentsModule,
     UsersModule,

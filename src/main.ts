@@ -2,6 +2,8 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
+import { NextFunction, Request, Response, urlencoded } from 'express';
 import helmet from 'helmet';
 
 import { GlobalExceptionFilter } from '@core/filters';
@@ -16,6 +18,31 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const reflector = app.get(Reflector);
+
+  app.use(cookieParser());
+  app.use(urlencoded({ extended: true }));
+  app.use((request: Request, _response: Response, next: NextFunction) => {
+    const sanitize = (value: unknown): unknown => {
+      if (Array.isArray(value)) {
+        return value.map((item) => sanitize(item));
+      }
+
+      if (value && typeof value === 'object') {
+        return Object.fromEntries(
+          Object.entries(value).map(([key, item]) => [key, sanitize(item)]),
+        );
+      }
+
+      if (value === '') {
+        return undefined;
+      }
+
+      return value;
+    };
+
+    request.body = sanitize(request.body);
+    next();
+  });
 
   app.use(
     helmet({

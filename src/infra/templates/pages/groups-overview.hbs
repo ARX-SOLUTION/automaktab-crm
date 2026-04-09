@@ -1,0 +1,57 @@
+{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
+  <section class="resource-section">
+    <h3>Yangi guruh</h3>
+    <form action="/app/groups" method="POST" class="form-grid inline-form">
+      <label>Nomi<input type="text" name="name" required></label>
+      <label>
+        Filial
+        <select name="branchId" required>
+          {{#each branches}}
+            <option value="{{id}}">{{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <button class="btn-primary" type="submit">Guruh qo'shish</button>
+    </form>
+  </section>
+
+  <div class="resource-list">
+    {{#each overview}}
+      <article class="resource-card">
+        <h4>{{branch.name}}</h4>
+        <ul class="plain-list">
+          {{#each groups}}
+            <li>{{name}} — {{totalStudents}} / {{activeStudents}}</li>
+          {{/each}}
+        </ul>
+      </article>
+    {{/each}}
+  </div>
+
+  <section class="resource-section">
+    <h3>Guruhlarni boshqarish</h3>
+    <div class="resource-list">
+      {{#each groups}}
+        <article class="resource-card">
+          <h4>{{name}}</h4>
+          <p>{{branchName}}</p>
+          <form action="/app/groups/{{id}}/update" method="POST" class="form-grid inline-form">
+            <label>Nomi<input type="text" name="name" value="{{name}}"></label>
+            <label>
+              Filial
+              <select name="branchId">
+                {{#each ../branches}}
+                  <option value="{{id}}" {{ifEquals ../branchId id 'selected'}}>{{name}}</option>
+                {{/each}}
+              </select>
+            </label>
+            <button class="btn-secondary" type="submit">Yangilash</button>
+          </form>
+          <form action="/app/groups/{{id}}/delete" method="POST">
+            <button class="btn-danger" type="submit">O'chirish</button>
+          </form>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+{{/main}}

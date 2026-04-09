@@ -1,0 +1,11 @@
+<header class="top-bar">
+  <div class="top-bar-left">
+    <h2>{{pageTitle}}</h2>
+    {{#if user.branchName}}
+      <span class="branch-chip">📍 {{user.branchName}}</span>
+    {{/if}}
+  </div>
+  <div class="top-bar-right">
+    <span class="user-info">👤 {{user.fullName}} <small>({{user.role}})</small></span>
+  </div>
+</header>

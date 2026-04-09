@@ -1,0 +1,77 @@
+{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-body">
+        <h3>{{stats.totalStudents}}</h3>
+        <p>Jami talabalar</p>
+        <small>{{#if user.isOwner}}Barcha filiallar{{else}}{{user.branchName}}{{/if}}</small>
+      </div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-icon">✅</div>
+      <div class="stat-body">
+        <h3>{{formatUZS stats.totalPaid}}</h3>
+        <p>To'langan</p>
+      </div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-body">
+        <h3>{{formatUZS stats.totalDebt}}</h3>
+        <p>{{#if user.isOwner}}Qarzdorlik{{else}}Filial qarzdorligi{{/if}}</p>
+      </div>
+    </div>
+    {{#if user.isOwner}}
+      <div class="stat-card info">
+        <div class="stat-icon">🏢</div>
+        <div class="stat-body">
+          <h3>{{stats.branchCount}}</h3>
+          <p>Filiallar</p>
+          <small>{{branchNames}}</small>
+        </div>
+      </div>
+    {{/if}}
+  </div>
+
+  <form class="filters-bar" method="GET" action="/app/dashboard">
+    <div class="filter-group">
+      <label>📍 Filial</label>
+      <select name="branchId" {{#unless user.isOwner}}disabled{{/unless}}>
+        {{{branchOptions branches user filters.branchId}}}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>💳 Holat</label>
+      <select name="status">
+        <option value="">Barchasi</option>
+        <option value="paid" {{ifEquals filters.status 'paid' 'selected'}}>✅ To'langan</option>
+        <option value="unpaid" {{ifEquals filters.status 'unpaid' 'selected'}}>❌ Qarzdor</option>
+      </select>
+    </div>
+    <div class="filter-group search">
+      <label>🔎 Qidiruv</label>
+      <input type="search" name="search" value="{{filters.search}}" placeholder="Ism yoki telefon">
+    </div>
+    <button class="btn-secondary" type="submit">Yangilash</button>
+    <a class="btn-primary" href="/app/students">Talabalar sahifasi</a>
+  </form>
+
+  <div class="dashboard-panels">
+    <section class="panel">
+      <h3>To'lov holati</h3>
+      <div class="metric-list">
+        <div><strong>{{stats.paidCount}}</strong> to'langan</div>
+        <div><strong>{{stats.debtCount}}</strong> qarzdor</div>
+      </div>
+    </section>
+    <section class="panel">
+      <h3>Filiallar</h3>
+      <ul class="plain-list">
+        {{#each branches}}
+          <li>{{name}}</li>
+        {{/each}}
+      </ul>
+    </section>
+  </div>
+{{/main}}

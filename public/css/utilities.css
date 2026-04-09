@@ -1,0 +1,24 @@
+.text-right {
+  text-align: right;
+}
+
+.text-danger {
+  color: #dc2626;
+}
+
+.text-success {
+  color: #16a34a;
+}
+
+.font-bold,
+.font-medium {
+  font-weight: 700;
+}
+
+.compact-form {
+  margin-top: 0.75rem;
+}
+
+.danger-form {
+  padding-top: 0.5rem;
+}
