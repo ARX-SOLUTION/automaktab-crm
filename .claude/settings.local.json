@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sshpass -p 'P@s$w0rd-12345!' ssh -o StrictHostKeyChecking=no root@165.22.216.160 'cd /root/Projects/auto-maktab/backend && pwd && git status && ls -la')",
+      "Bash(sshpass -p 'P@s$w0rd-12345!' ssh -o StrictHostKeyChecking=no root@165.22.216.160 'cat /root/Projects/auto-maktab/backend/.env')",
+      "Bash(sshpass -p 'P@s$w0rd-12345!' ssh -o StrictHostKeyChecking=no root@165.22.216.160 'cat /root/Projects/auto-maktab/backend/Dockerfile')"
+    ]
+  }
+}

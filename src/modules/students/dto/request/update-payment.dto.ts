@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   IsNumber,
   IsOptional,
@@ -9,6 +9,8 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+
+import { toOptionalNumber } from '@common/dto';
 
 @ValidatorConstraint({ name: 'studentPaymentFields', async: false })
 class StudentPaymentFieldsConstraint implements ValidatorConstraintInterface {
@@ -31,28 +33,28 @@ class StudentPaymentFieldsConstraint implements ValidatorConstraintInterface {
 export class UpdatePaymentDto {
   @ApiPropertyOptional({ example: 500000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   amountPaid?: number;
 
   @ApiPropertyOptional({ example: 1000000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   initialPayment?: number;
 
   @ApiPropertyOptional({ example: 200000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   secondPayment?: number;
 
   @ApiPropertyOptional({ example: 400000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   thirdPayment?: number;

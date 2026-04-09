@@ -1,0 +1,391 @@
+{
+  "info": {
+    "name": "Auto Test CRM - Empty Params Regression",
+    "_postman_id": "8baf8d84-7f8a-4a65-9e52-7c3b5643f6d1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "ownerToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "09 - Empty Params Regression",
+      "item": [
+        {
+          "name": "GET /students?courseType=&branchId=&status=&search=",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty params should not cause validation error\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.not.have.jsonBody('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students?courseType=&branchId=&status=&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"],
+              "query": [
+                {
+                  "key": "courseType",
+                  "value": ""
+                },
+                {
+                  "key": "branchId",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /students?courseType=express&branchId=",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty params should not cause validation error\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.not.have.jsonBody('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students?courseType=express&branchId=",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"],
+              "query": [
+                {
+                  "key": "courseType",
+                  "value": "express"
+                },
+                {
+                  "key": "branchId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /students?page=&limit=",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty params should not cause validation error\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.not.have.jsonBody('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students?page=&limit=",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": ""
+                },
+                {
+                  "key": "limit",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /users?branchId=",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty params should not cause validation error\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.not.have.jsonBody('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?branchId=",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /groups?branchId=",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty params should not cause validation error\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.not.have.jsonBody('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/groups?branchId=",
+              "host": ["{{baseUrl}}"],
+              "path": ["groups"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /reports/revenue?branchId=&courseType=&startDate=&endDate=",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty params should not cause validation error\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.not.have.jsonBody('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/revenue?branchId=&courseType=&startDate=&endDate=",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "revenue"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": ""
+                },
+                {
+                  "key": "courseType",
+                  "value": ""
+                },
+                {
+                  "key": "startDate",
+                  "value": ""
+                },
+                {
+                  "key": "endDate",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /reports/dashboard?branchId=&courseType=",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty params should not cause validation error\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.to.not.have.jsonBody('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/dashboard?branchId=&courseType=",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "dashboard"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": ""
+                },
+                {
+                  "key": "courseType",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /students?courseType=INVALID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invalid params should still fail validation\", () => {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students?courseType=INVALID",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"],
+              "query": [
+                {
+                  "key": "courseType",
+                  "value": "INVALID"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /students?branchId=not-a-uuid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invalid params should still fail validation\", () => {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ownerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/students?branchId=not-a-uuid",
+              "host": ["{{baseUrl}}"],
+              "path": ["students"],
+              "query": [
+                {
+                  "key": "branchId",
+                  "value": "not-a-uuid"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

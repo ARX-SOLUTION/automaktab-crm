@@ -1,29 +1,33 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { IsDate, IsEnum, IsOptional, IsUUID } from 'class-validator';
+
+import { toOptionalDate, toOptionalText } from '@common/dto';
 
 import { CourseType } from '@prisma/client';
 
 export class GetRevenueQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
 
   @ApiPropertyOptional({ enum: CourseType })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsEnum(CourseType)
   courseType?: CourseType;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Date)
+  @Transform(toOptionalDate)
   @IsDate()
   startDate?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Date)
+  @Transform(toOptionalDate)
   @IsDate()
   endDate?: Date;
 }

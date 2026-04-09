@@ -46,7 +46,9 @@ describe('Critical flows', () => {
       .get('/branches')
       .set('Authorization', `Bearer ${ownerToken}`)
       .expect(200);
-    const otherBranch = ownerBranches.body.find((branch: { id: string; name: string }) => branch.id !== managerBranchId);
+    const otherBranch = ownerBranches.body.find(
+      (branch: { id: string; name: string }) => branch.id !== managerBranchId,
+    );
 
     const otherStudentResponse = await request(BASE_URL)
       .get('/students')
@@ -196,3 +198,5 @@ describe('Critical flows', () => {
     expect(historyResponse.body.length).toBeGreaterThanOrEqual(2);
   });
 });
+
+export {};

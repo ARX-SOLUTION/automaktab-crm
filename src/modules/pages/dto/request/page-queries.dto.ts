@@ -1,26 +1,21 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-  IsDate,
-  IsEnum,
-  IsIn,
-  IsOptional,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDate, IsEnum, IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
 
-import { PaginationQueryDto } from '@common/dto';
+import { PaginationQueryDto, toOptionalDate, toOptionalText } from '@common/dto';
 
 import { CourseType } from '@prisma/client';
 
 export class SsrBaseQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   success?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   error?: string;
 }
@@ -28,21 +23,25 @@ export class SsrBaseQueryDto {
 export class SsrDashboardQueryDto extends SsrBaseQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
 
   @ApiPropertyOptional({ enum: ['paid', 'unpaid'] })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsIn(['paid', 'unpaid'])
   status?: 'paid' | 'unpaid';
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   search?: string;
 
   @ApiPropertyOptional({ enum: CourseType })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsEnum(CourseType)
   courseType?: CourseType;
 }
@@ -50,31 +49,37 @@ export class SsrDashboardQueryDto extends SsrBaseQueryDto {
 export class SsrStudentsQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
 
   @ApiPropertyOptional({ enum: ['paid', 'unpaid'] })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsIn(['paid', 'unpaid'])
   status?: 'paid' | 'unpaid';
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   search?: string;
 
   @ApiPropertyOptional({ enum: CourseType })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsEnum(CourseType)
   courseType?: CourseType;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   success?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   error?: string;
 }
@@ -82,11 +87,13 @@ export class SsrStudentsQueryDto extends PaginationQueryDto {
 export class SsrManagersQueryDto extends SsrBaseQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   search?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
 }
@@ -94,23 +101,25 @@ export class SsrManagersQueryDto extends SsrBaseQueryDto {
 export class SsrReportsQueryDto extends SsrBaseQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
 
   @ApiPropertyOptional({ enum: CourseType })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsEnum(CourseType)
   courseType?: CourseType;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Date)
+  @Transform(toOptionalDate)
   @IsDate()
   startDate?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Date)
+  @Transform(toOptionalDate)
   @IsDate()
   endDate?: Date;
 }

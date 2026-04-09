@@ -1,3 +1,26 @@
+document.querySelectorAll('form[method="GET"], form[method="get"]').forEach((form) => {
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const action = form.getAttribute('action') || window.location.pathname;
+    const url = new URL(action, window.location.origin);
+    const formData = new FormData(form);
+
+    formData.forEach((value, key) => {
+      if (typeof value !== 'string') {
+        return;
+      }
+
+      const normalized = value.trim();
+      if (normalized) {
+        url.searchParams.set(key, normalized);
+      }
+    });
+
+    window.location.assign(`${url.pathname}${url.search}${url.hash}`);
+  });
+});
+
 document.querySelectorAll('[data-modal-open]').forEach((button) => {
   button.addEventListener('click', () => {
     const target = button.getAttribute('data-modal-open');

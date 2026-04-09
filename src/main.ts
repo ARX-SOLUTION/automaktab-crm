@@ -8,6 +8,7 @@ import helmet from 'helmet';
 
 import { GlobalExceptionFilter } from '@core/filters';
 import { RequestLoggingInterceptor, ResponseWrapperInterceptor } from '@core/interceptors';
+import { sanitizeEmptyStrings } from '@common/dto';
 
 import { AppModule } from './app.module';
 
@@ -22,25 +23,8 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(urlencoded({ extended: true }));
   app.use((request: Request, _response: Response, next: NextFunction) => {
-    const sanitize = (value: unknown): unknown => {
-      if (Array.isArray(value)) {
-        return value.map((item) => sanitize(item));
-      }
-
-      if (value && typeof value === 'object') {
-        return Object.fromEntries(
-          Object.entries(value).map(([key, item]) => [key, sanitize(item)]),
-        );
-      }
-
-      if (value === '') {
-        return undefined;
-      }
-
-      return value;
-    };
-
-    request.body = sanitize(request.body);
+    request.body = sanitizeEmptyStrings(request.body);
+    request.query = sanitizeEmptyStrings(request.query) as Request['query'];
     next();
   });
 
@@ -74,7 +58,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: {
-        enableImplicitConversion: true,
+        enableImplicitConversion: false,
       },
     }),
   );

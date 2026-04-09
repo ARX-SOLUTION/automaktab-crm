@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
@@ -15,6 +15,8 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+
+import { toOptionalBoolean, toOptionalDate, toOptionalNumber, toOptionalText } from '@common/dto';
 
 import { CourseType, PaymentMethod, StudentResult } from '@prisma/client';
 
@@ -89,77 +91,83 @@ export class CreateStudentDto {
 
   @ApiPropertyOptional({ example: 200000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   amountPaid?: number;
 
   @ApiPropertyOptional({ example: 1000000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   initialPayment?: number;
 
   @ApiPropertyOptional({ example: 200000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   secondPayment?: number;
 
   @ApiPropertyOptional({ example: 400000 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(toOptionalNumber)
   @IsNumber()
   @Min(0)
   thirdPayment?: number;
 
   @ApiPropertyOptional({ enum: PaymentMethod })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsEnum(PaymentMethod)
   paymentMethod?: PaymentMethod;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsUUID()
   groupId?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   contractNumber?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Type(() => Date)
+  @Transform(toOptionalDate)
   @IsDate()
   completionDate?: Date;
 
   @ApiPropertyOptional({ example: false })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(toOptionalBoolean)
   @IsBoolean()
   o83?: boolean;
 
   @ApiPropertyOptional({ example: false })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(toOptionalBoolean)
   @IsBoolean()
   hasDocument?: boolean;
 
   @ApiPropertyOptional({ enum: StudentResult, example: StudentResult.pending })
   @IsOptional()
+  @Transform(toOptionalText)
   @IsEnum(StudentResult)
   result?: StudentResult;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsString()
   notes?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
 

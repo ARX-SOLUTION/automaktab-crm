@@ -24,7 +24,11 @@ describe('SSR auth and role-based UI', () => {
   jest.setTimeout(30_000);
 
   it('redirects unauthenticated dashboard requests to app login', async () => {
-    await request(BASE_URL).get('/app/dashboard').redirects(0).expect(302).expect('Location', '/app/login');
+    await request(BASE_URL)
+      .get('/app/dashboard')
+      .redirects(0)
+      .expect(302)
+      .expect('Location', '/app/login');
   });
 
   it('logs in owner and manager with role-based redirects', async () => {
@@ -58,7 +62,7 @@ describe('SSR auth and role-based UI', () => {
 
     expect(response.text).toContain('/app/branches');
     expect(response.text).toContain('Samarqand');
-    expect(response.text).toContain("Qarzdorlik");
+    expect(response.text).toContain('Qarzdorlik');
   });
 
   it('renders students table structure and summary rows', async () => {
@@ -89,9 +93,9 @@ describe('SSR auth and role-based UI', () => {
       expect(response.text).toContain(`<th>${header}</th>`);
     });
 
-    expect(response.text).toContain("JAMI NATIJA");
+    expect(response.text).toContain('JAMI NATIJA');
     expect(response.text).toContain("✅ JAMI TO'LANGAN");
-    expect(response.text).toContain("❌ JAMI QOLDIQ (QARZDORLIK)");
+    expect(response.text).toContain('❌ JAMI QOLDIQ (QARZDORLIK)');
   });
 
   it('redirects manager away from owner-only SSR pages and clears cookie on logout', async () => {
@@ -114,3 +118,5 @@ describe('SSR auth and role-based UI', () => {
     expect(logoutResponse.headers['set-cookie'][0]).toContain('jwt=;');
   });
 });
+
+export {};
