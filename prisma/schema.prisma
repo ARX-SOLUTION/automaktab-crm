@@ -44,6 +44,13 @@ enum PaymentStatus {
   refunded
 }
 
+enum PaymentField {
+  amountPaid
+  initialPayment
+  secondPayment
+  thirdPayment
+}
+
 model User {
   id        String    @id @default(uuid()) @db.Uuid
   fullName  String    @map("full_name")
@@ -57,7 +64,8 @@ model User {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  registeredStudents Student[] @relation("RegisteredStudents")
+  registeredStudents Student[]    @relation("RegisteredStudents")
+  paymentLogs        PaymentLog[] @relation("PaymentLogs")
 
   @@index([role])
   @@index([branchId])
@@ -130,6 +138,7 @@ model Student {
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
   deletedAt      DateTime?      @map("deleted_at")
+  paymentLogs    PaymentLog[]
 
   @@index([branchId, courseType, deletedAt])
   @@index([courseType, status])
@@ -137,4 +146,21 @@ model Student {
   @@index([groupId])
   @@index([debt])
   @@map("students")
+}
+
+model PaymentLog {
+  id            String       @id @default(uuid()) @db.Uuid
+  studentId     String       @map("student_id") @db.Uuid
+  student       Student      @relation(fields: [studentId], references: [id])
+  paymentField  PaymentField @map("payment_field")
+  amount        Decimal      @db.Decimal(12, 2)
+  previousAmount Decimal     @default(0) @map("previous_amount") @db.Decimal(12, 2)
+  newAmount     Decimal      @default(0) @map("new_amount") @db.Decimal(12, 2)
+  changedBy     String       @map("changed_by") @db.Uuid
+  changedByUser User         @relation("PaymentLogs", fields: [changedBy], references: [id])
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  @@index([studentId, createdAt])
+  @@index([changedBy])
+  @@map("payment_logs")
 }

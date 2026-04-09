@@ -14,7 +14,10 @@ import { StorageModule } from '@infra/storage';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { BranchesModule } from './modules/branches/branches.module';
+import { GroupsModule } from './modules/groups/groups.module';
 import { HealthModule } from './modules/health/health.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { StudentsModule } from './modules/students/students.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -36,6 +39,9 @@ import { UsersModule } from './modules/users/users.module';
     HealthModule,
     AuthModule,
     BranchesModule,
+    GroupsModule,
+    ReportsModule,
+    StudentsModule,
     UsersModule,
     UploadModule,
   ],
