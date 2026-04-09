@@ -8,17 +8,19 @@ dotenv.config();
 const prisma = new PrismaClient();
 
 const SALT_ROUNDS = 10;
+const LEGACY_OWNER_PHONE = '+998901234567';
 
 const OWNER = {
-  fullName: 'System Owner',
-  phone: '+998901234567',
-  password: 'owner123',
+  fullName: 'Admin Boss',
+  phone: '+998900000000',
+  password: 'admin123',
 } as const;
 
 const BRANCHES = [
   {
     name: 'Minor',
-    address: 'Minor branch',
+    address: 'Minor, Toshkent',
+    phone: '+998712000001',
     manager: {
       fullName: 'Minor Manager',
       phone: '+998901111111',
@@ -27,7 +29,8 @@ const BRANCHES = [
   },
   {
     name: 'Chorsu',
-    address: 'Chorsu branch',
+    address: 'Chorsu, Toshkent',
+    phone: '+998712000002',
     manager: {
       fullName: 'Chorsu Manager',
       phone: '+998902222222',
@@ -36,7 +39,8 @@ const BRANCHES = [
   },
   {
     name: 'Novza',
-    address: 'Novza branch',
+    address: 'Novza, Toshkent',
+    phone: '+998712000003',
     manager: {
       fullName: 'Novza Manager',
       phone: '+998903333333',
@@ -45,7 +49,8 @@ const BRANCHES = [
   },
   {
     name: 'Samarqand',
-    address: 'Samarqand branch',
+    address: 'Samarqand shahri',
+    phone: '+998662000004',
     manager: {
       fullName: 'Samarqand Manager',
       phone: '+998904444444',
@@ -76,17 +81,19 @@ async function upsertOwner() {
   });
 }
 
-async function upsertBranch(name: string, address: string) {
+async function upsertBranch(name: string, address: string, phone: string) {
   return prisma.branch.upsert({
     where: { name },
     update: {
       address,
+      phone,
       isActive: true,
       deletedAt: null,
     },
     create: {
       name,
       address,
+      phone,
     },
   });
 }
@@ -120,11 +127,15 @@ async function upsertManager(input: {
 }
 
 async function main() {
+  await prisma.user.deleteMany({
+    where: { phone: LEGACY_OWNER_PHONE },
+  });
+
   const owner = await upsertOwner();
   console.log(`Owner ready: ${owner.phone}`);
 
   for (const branchSeed of BRANCHES) {
-    const branch = await upsertBranch(branchSeed.name, branchSeed.address);
+    const branch = await upsertBranch(branchSeed.name, branchSeed.address, branchSeed.phone);
 
     const manager = await upsertManager({
       ...branchSeed.manager,

@@ -1,19 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { UserResponse } from '@/modules/users/dto';
+import { CurrentUserPayload } from '@common/types';
 
 export class AuthResponse {
   @ApiProperty()
   accessToken: string;
-
-  @ApiProperty()
-  refreshToken: string;
-
-  @ApiProperty({ type: UserResponse })
-  user: UserResponse;
 }
 
-export class MessageResponse {
+export class CurrentUserResponse {
   @ApiProperty()
-  message: string;
+  id: string;
+
+  @ApiProperty()
+  role: CurrentUserPayload['role'];
+
+  @ApiProperty({ nullable: true })
+  branchId: string | null;
+
+  static fromCurrentUser(user: CurrentUserPayload): CurrentUserResponse {
+    return {
+      id: user.id,
+      role: user.role,
+      branchId: user.branchId,
+    };
+  }
 }

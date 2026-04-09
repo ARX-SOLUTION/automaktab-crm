@@ -13,6 +13,7 @@ import { RedisModule } from '@infra/redis/redis.module';
 import { StorageModule } from '@infra/storage';
 
 import { AuthModule } from './modules/auth/auth.module';
+import { BranchesModule } from './modules/branches/branches.module';
 import { HealthModule } from './modules/health/health.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { UsersModule } from './modules/users/users.module';
@@ -21,6 +22,7 @@ import { UsersModule } from './modules/users/users.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '.env.example'],
       validate: validateEnv,
     }),
     ThrottlerModule.forRoot({
@@ -33,6 +35,7 @@ import { UsersModule } from './modules/users/users.module';
     StorageModule,
     HealthModule,
     AuthModule,
+    BranchesModule,
     UsersModule,
     UploadModule,
   ],

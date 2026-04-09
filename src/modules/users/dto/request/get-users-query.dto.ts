@@ -1,17 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
-import { PaginationQueryDto } from '@common/dto';
-
-export class GetUsersQueryDto extends PaginationQueryDto {
-  @ApiPropertyOptional({ description: 'Search by name or email' })
+export class GetUsersQueryDto {
+  @ApiPropertyOptional({ description: 'Search by full name or phone' })
   @IsOptional()
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ enum: Role, description: 'Filter by role' })
+  @ApiPropertyOptional({ description: 'Filter by branch id' })
   @IsOptional()
-  @IsEnum(Role)
-  role?: Role;
+  @IsUUID()
+  branchId?: string;
 }

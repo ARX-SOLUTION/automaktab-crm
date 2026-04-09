@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -20,112 +19,82 @@ import { RolesGuard } from '@core/guards';
 import { Role } from '@prisma/client';
 
 import {
-  AdminUpdateUserDto,
-  ChangePasswordDto,
   CreateUserDto,
   GetUsersQueryDto,
-  RequestEmailChangeDto,
+  ResetUserPasswordDto,
   UpdateUserDto,
   UserResponse,
-  VerifyEmailChangeDto,
 } from './dto';
-import { EmailChangeService } from './email-change.service';
 import { UsersService } from './users.service';
 
 @ApiTags('Users')
 @ApiBearerAuth()
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly emailChangeService: EmailChangeService,
-  ) {}
-
-  @Get()
-  @UseGuards(RolesGuard)
-  @Roles(Role.superadmin, Role.admin)
-  @ApiOperation({ summary: 'Get all users (Admin only)' })
-  @ApiResponse({ status: 200, description: 'Returns paginated users' })
-  findAll(@Query() query: GetUsersQueryDto) {
-    return this.usersService.findAll(query);
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(Role.superadmin, Role.admin)
-  @ApiOperation({ summary: 'Create user (Admin only)' })
+  @Roles(Role.owner)
+  @ApiOperation({ summary: 'Create manager account' })
   @ApiResponse({ status: 201, type: UserResponse })
-  create(@Body() dto: CreateUserDto, @CurrentUser() currentUser: CurrentUserPayload) {
-    return this.usersService.create(dto, currentUser);
+  create(@Body() dto: CreateUserDto): Promise<UserResponse> {
+    return this.usersService.create(dto);
+  }
+
+  @Get()
+  @UseGuards(RolesGuard)
+  @Roles(Role.owner)
+  @ApiOperation({ summary: 'List manager accounts' })
+  @ApiResponse({ status: 200, type: [UserResponse] })
+  findAll(@Query() query: GetUsersQueryDto): Promise<UserResponse[]> {
+    return this.usersService.findAll(query);
   }
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, type: UserResponse })
-  getMe(@CurrentUser() user: CurrentUserPayload) {
-    return this.usersService.findById(user.id);
-  }
-
-  @Patch('me')
-  @ApiOperation({ summary: 'Update current user profile' })
-  @ApiResponse({ status: 200, type: UserResponse })
-  updateMe(@CurrentUser() user: CurrentUserPayload, @Body() dto: UpdateUserDto) {
-    return this.usersService.update(user.id, dto);
-  }
-
-  @Patch('me/password')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Change current user password' })
-  @ApiResponse({ status: 204, description: 'Password changed successfully' })
-  changePassword(@CurrentUser() user: CurrentUserPayload, @Body() dto: ChangePasswordDto) {
-    return this.usersService.changePassword(user.id, dto);
-  }
-
-  @Post('me/email/request')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Request email change - sends OTP to new email' })
-  @ApiResponse({ status: 204, description: 'Verification code sent to new email' })
-  requestEmailChange(@CurrentUser() user: CurrentUserPayload, @Body() dto: RequestEmailChangeDto) {
-    return this.emailChangeService.requestEmailChange(user.id, dto);
-  }
-
-  @Post('me/email/verify')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Verify email change with OTP' })
-  @ApiResponse({ status: 204, description: 'Email changed successfully' })
-  verifyEmailChange(@CurrentUser() user: CurrentUserPayload, @Body() dto: VerifyEmailChangeDto) {
-    return this.emailChangeService.verifyEmailChange(user.id, dto);
+  findMe(@CurrentUser() currentUser: CurrentUserPayload): Promise<UserResponse> {
+    return this.usersService.findMe(currentUser);
   }
 
   @Get(':id')
   @UseGuards(RolesGuard)
-  @Roles(Role.superadmin, Role.admin)
-  @ApiOperation({ summary: 'Get user by ID (Admin only)' })
+  @Roles(Role.owner)
+  @ApiOperation({ summary: 'Get single manager account' })
   @ApiResponse({ status: 200, type: UserResponse })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  findOne(@Param('id') id: string): Promise<UserResponse> {
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles(Role.superadmin, Role.admin)
-  @ApiOperation({ summary: 'Update user (Admin only)' })
+  @Roles(Role.owner)
+  @ApiOperation({ summary: 'Update manager account' })
   @ApiResponse({ status: 200, type: UserResponse })
-  update(
-    @Param('id') id: string,
-    @Body() dto: AdminUpdateUserDto,
-    @CurrentUser() currentUser: CurrentUserPayload,
-  ) {
-    return this.usersService.adminUpdate(id, dto, currentUser);
+  update(@Param('id') id: string, @Body() dto: UpdateUserDto): Promise<UserResponse> {
+    return this.usersService.update(id, dto);
   }
 
-  @Delete(':id')
+  @Patch(':id/deactivate')
   @UseGuards(RolesGuard)
-  @Roles(Role.superadmin, Role.admin)
+  @Roles(Role.owner)
+  @ApiOperation({ summary: 'Deactivate manager account' })
+  @ApiResponse({ status: 200, type: UserResponse })
+  deactivate(@Param('id') id: string): Promise<UserResponse> {
+    return this.usersService.deactivate(id);
+  }
+
+  @Patch(':id/reset-password')
+  @UseGuards(RolesGuard)
+  @Roles(Role.owner)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete user (Admin only)' })
-  @ApiResponse({ status: 204, description: 'User deleted successfully' })
-  delete(@Param('id') id: string) {
-    return this.usersService.delete(id);
+  @ApiOperation({ summary: 'Reset manager password' })
+  @ApiResponse({ status: 204, description: 'Password reset successfully' })
+  async resetPassword(
+    @Param('id') id: string,
+    @Body() dto: ResetUserPasswordDto,
+  ): Promise<void> {
+    await this.usersService.resetPassword(id, dto);
   }
 }

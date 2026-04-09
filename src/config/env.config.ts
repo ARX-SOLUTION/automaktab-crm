@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.coerce.number().default(4000),
+  PORT: z.coerce.number().default(3000),
 
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
@@ -10,9 +10,9 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 
-  REDIS_HOST: z.string().default('localhost'),
+  REDIS_HOST: z.string().default('127.0.0.1'),
   REDIS_PORT: z.coerce.number().default(6379),
-  REDIS_URL: z.string().optional(),
+  REDIS_URL: z.string().default('redis://127.0.0.1:6379'),
 
   CORS_WHITELIST: z.string().default(''),
 

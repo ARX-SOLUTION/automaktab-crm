@@ -7,27 +7,35 @@ export class UserResponse {
   id: string;
 
   @ApiProperty()
-  email: string;
+  fullName: string;
 
   @ApiProperty()
-  fullName: string;
+  phone: string;
 
   @ApiProperty({ enum: Role })
   role: Role;
 
+  @ApiProperty({ nullable: true })
+  branchId: string | null;
+
+  @ApiProperty({ nullable: true })
+  branchName: string | null;
+
   @ApiProperty()
-  emailVerified: boolean;
+  isActive: boolean;
 
   @ApiProperty()
   createdAt: Date;
 
-  static fromEntity(user: User): UserResponse {
+  static fromEntity(user: User, branchName: string | null = null): UserResponse {
     return {
       id: user.id,
-      email: user.email,
       fullName: user.fullName,
+      phone: user.phone,
       role: user.role,
-      emailVerified: user.emailVerified,
+      branchId: user.branchId,
+      branchName,
+      isActive: user.isActive,
       createdAt: user.createdAt,
     };
   }

@@ -1,6 +1,5 @@
 import {
-  BadRequestException,
-  ForbiddenException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,10 +12,9 @@ import { UserCacheService } from '@infra/redis';
 import { Role } from '@prisma/client';
 
 import {
-  AdminUpdateUserDto,
-  ChangePasswordDto,
   CreateUserDto,
   GetUsersQueryDto,
+  ResetUserPasswordDto,
   UpdateUserDto,
   UserResponse,
 } from './dto';
@@ -24,187 +22,178 @@ import {
 @Injectable()
 export class UsersService {
   constructor(
-    private prisma: PrismaService,
-    private userCache: UserCacheService,
+    private readonly prisma: PrismaService,
+    private readonly userCache: UserCacheService,
   ) {}
 
-  async findAll(query: GetUsersQueryDto) {
-    const { page = 1, limit = 10, search, role } = query;
-    const skip = (page - 1) * limit;
+  async create(dto: CreateUserDto): Promise<UserResponse> {
+    await this.ensurePhoneAvailable(dto.phone);
+    const branch = await this.findBranchOrThrow(dto.branchId);
 
-    const where = {
-      deletedAt: null,
-      ...(role && { role }),
-      ...(search && {
-        OR: [
-          { fullName: { contains: search, mode: 'insensitive' as const } },
-          { email: { contains: search, mode: 'insensitive' as const } },
-        ],
-      }),
-    };
-
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.user.count({ where }),
-    ]);
-
-    return {
-      data: users.map(UserResponse.fromEntity),
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-        hasNextPage: page < Math.ceil(total / limit),
-        hasPreviousPage: page > 1,
-      },
-    };
-  }
-
-  async create(
-    dto: CreateUserDto,
-    currentUser: CurrentUserPayload,
-  ): Promise<UserResponse> {
-    // Check if email already exists
-    const existingUser = await this.prisma.user.findFirst({
-      where: { email: dto.email, deletedAt: null },
-    });
-
-    if (existingUser) {
-      throw new BadRequestException('Email already registered');
-    }
-
-    // Only superadmin can assign superadmin role
-    if (dto.role === Role.superadmin && currentUser.role !== Role.superadmin) {
-      throw new ForbiddenException('Only superadmin can assign superadmin role');
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    // Create user
     const user = await this.prisma.user.create({
       data: {
-        email: dto.email,
-        password: hashedPassword,
         fullName: dto.fullName,
-        role: dto.role || Role.user,
-        emailVerified: true, // Admin-created users are pre-verified
+        phone: dto.phone,
+        password: await bcrypt.hash(dto.password, 10),
+        role: Role.manager,
+        branchId: dto.branchId,
       },
     });
 
-    return UserResponse.fromEntity(user);
+    return UserResponse.fromEntity(user, branch.name);
   }
 
-  async findById(id: string): Promise<UserResponse> {
+  async findAll(query: GetUsersQueryDto): Promise<UserResponse[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        deletedAt: null,
+        role: Role.manager,
+        ...(query.branchId ? { branchId: query.branchId } : {}),
+        ...(query.search
+          ? {
+              OR: [
+                { fullName: { contains: query.search, mode: 'insensitive' } },
+                { phone: { contains: query.search } },
+              ],
+            }
+          : {}),
+      },
+      include: {
+        branch: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return users.map((user) => UserResponse.fromEntity(user, user.branch?.name ?? null));
+  }
+
+  async findOne(id: string): Promise<UserResponse> {
+    const user = await this.findManagerOrThrow(id);
+    return UserResponse.fromEntity(user, user.branch?.name ?? null);
+  }
+
+  async findMe(currentUser: CurrentUserPayload): Promise<UserResponse> {
     const user = await this.prisma.user.findFirst({
-      where: { id, deletedAt: null },
+      where: {
+        id: currentUser.id,
+        deletedAt: null,
+      },
+      include: {
+        branch: true,
+      },
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    return UserResponse.fromEntity(user);
+    return UserResponse.fromEntity(user, user.branch?.name ?? null);
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<UserResponse> {
-    const user = await this.prisma.user.findFirst({
-      where: { id, deletedAt: null },
-    });
+    const user = await this.findManagerOrThrow(id);
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (dto.phone && dto.phone !== user.phone) {
+      await this.ensurePhoneAvailable(dto.phone, user.id);
     }
 
-    const updated = await this.prisma.user.update({
+    let branchName = user.branch?.name ?? null;
+    if (dto.branchId && dto.branchId !== user.branchId) {
+      const branch = await this.findBranchOrThrow(dto.branchId);
+      branchName = branch.name;
+    }
+
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: dto,
+      include: {
+        branch: true,
+      },
     });
 
     await this.userCache.invalidate(id);
 
-    return UserResponse.fromEntity(updated);
+    return UserResponse.fromEntity(updatedUser, updatedUser.branch?.name ?? branchName);
   }
 
-  async adminUpdate(
-    id: string,
-    dto: AdminUpdateUserDto,
-    currentUser: CurrentUserPayload,
-  ): Promise<UserResponse> {
-    const user = await this.prisma.user.findFirst({
-      where: { id, deletedAt: null },
-    });
+  async deactivate(id: string): Promise<UserResponse> {
+    await this.findManagerOrThrow(id);
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (user.id === currentUser.id && dto.role) {
-      throw new ForbiddenException('Cannot modify your own role');
-    }
-
-    if (user.role === Role.superadmin && currentUser.role !== Role.superadmin) {
-      throw new ForbiddenException('Cannot modify superadmin users');
-    }
-
-    if (dto.role === Role.superadmin && currentUser.role !== Role.superadmin) {
-      throw new ForbiddenException('Only superadmin can assign superadmin role');
-    }
-
-    const updated = await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: dto,
+      data: {
+        isActive: false,
+      },
+      include: {
+        branch: true,
+      },
     });
 
     await this.userCache.invalidate(id);
 
-    return UserResponse.fromEntity(updated);
+    return UserResponse.fromEntity(updatedUser, updatedUser.branch?.name ?? null);
   }
 
-  async changePassword(id: string, dto: ChangePasswordDto): Promise<void> {
-    const user = await this.prisma.user.findFirst({
-      where: { id, deletedAt: null },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const isValidPassword = await bcrypt.compare(dto.currentPassword, user.password);
-    if (!isValidPassword) {
-      throw new BadRequestException('Current password is incorrect');
-    }
-
-    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+  async resetPassword(id: string, dto: ResetUserPasswordDto): Promise<void> {
+    await this.findManagerOrThrow(id);
 
     await this.prisma.user.update({
       where: { id },
-      data: { password: hashedPassword },
+      data: {
+        password: await bcrypt.hash(dto.newPassword, 10),
+      },
     });
 
     await this.userCache.invalidate(id);
   }
 
-  async delete(id: string): Promise<void> {
+  private async findManagerOrThrow(id: string) {
     const user = await this.prisma.user.findFirst({
-      where: { id, deletedAt: null },
+      where: {
+        id,
+        role: Role.manager,
+        deletedAt: null,
+      },
+      include: {
+        branch: true,
+      },
     });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Manager not found');
     }
 
-    await this.prisma.user.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+    return user;
+  }
+
+  private async findBranchOrThrow(branchId: string) {
+    const branch = await this.prisma.branch.findFirst({
+      where: {
+        id: branchId,
+        deletedAt: null,
+      },
     });
 
-    await this.userCache.invalidate(id);
+    if (!branch) {
+      throw new NotFoundException('Branch not found');
+    }
+
+    return branch;
+  }
+
+  private async ensurePhoneAvailable(phone: string, excludeUserId?: string): Promise<void> {
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        phone,
+        deletedAt: null,
+        ...(excludeUserId ? { NOT: { id: excludeUserId } } : {}),
+      },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Phone already exists');
+    }
   }
 }

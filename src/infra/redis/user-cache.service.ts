@@ -5,10 +5,10 @@ import { RedisService } from './redis.service';
 
 export interface CachedUser {
   id: string;
-  email: string;
   fullName: string;
   role: string;
-  refreshToken: string | null;
+  branchId: string | null;
+  isActive: boolean;
   deletedAt: Date | null;
 }
 
@@ -36,10 +36,10 @@ export class UserCacheService {
   async set(user: User): Promise<void> {
     const cached: CachedUser = {
       id: user.id,
-      email: user.email,
       fullName: user.fullName,
       role: user.role,
-      refreshToken: user.refreshToken,
+      branchId: user.branchId,
+      isActive: user.isActive,
       deletedAt: user.deletedAt,
     };
 

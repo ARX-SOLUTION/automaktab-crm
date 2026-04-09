@@ -38,8 +38,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.setGlobalPrefix('api');
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -69,7 +67,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
 
   app.use(
-    '/api/docs',
+    '/docs',
     basicAuth({
       users: { [swaggerUsername]: swaggerPassword },
       challenge: true,
@@ -77,7 +75,7 @@ async function bootstrap() {
     }),
   );
 
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('docs', app, document);
 
   app.enableShutdownHooks();
 
@@ -86,8 +84,8 @@ async function bootstrap() {
   await app.listen(port);
 
   logger.log(`Application is running on: http://localhost:${port}`);
-  logger.log(`Swagger documentation: http://localhost:${port}/api/docs`);
-  logger.log(`Health check: http://localhost:${port}/api/health`);
+  logger.log(`Swagger documentation: http://localhost:${port}/docs`);
+  logger.log(`Health check: http://localhost:${port}/health`);
 }
 
 bootstrap();

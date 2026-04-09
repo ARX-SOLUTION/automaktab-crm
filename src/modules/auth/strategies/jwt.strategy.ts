@@ -8,16 +8,17 @@ import { PrismaService } from '@infra/prisma';
 import { UserCacheService } from '@infra/redis';
 
 interface JwtPayload {
-  sub: string;
-  email: string;
+  id: string;
+  role: CurrentUserPayload['role'];
+  branchId: string | null;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private configService: ConfigService,
-    private prisma: PrismaService,
-    private userCache: UserCacheService,
+    configService: ConfigService,
+    private readonly prisma: PrismaService,
+    private readonly userCache: UserCacheService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -27,12 +28,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<CurrentUserPayload> {
-    let cachedUser = await this.userCache.get(payload.sub);
+    let cachedUser = await this.userCache.get(payload.id);
 
     if (!cachedUser) {
       const user = await this.prisma.user.findFirst({
         where: {
-          id: payload.sub,
+          id: payload.id,
           deletedAt: null,
         },
       });
@@ -42,29 +43,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
 
       await this.userCache.set(user);
-      cachedUser = {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-        refreshToken: user.refreshToken,
-        deletedAt: user.deletedAt,
-      };
+      cachedUser = await this.userCache.get(user.id);
     }
 
-    if (cachedUser.deletedAt) {
+    if (!cachedUser || cachedUser.deletedAt) {
       throw new UnauthorizedException('User not found');
     }
 
-    if (!cachedUser.refreshToken) {
-      throw new UnauthorizedException('Session expired');
+    if (!cachedUser.isActive) {
+      throw new UnauthorizedException('Account deactivated');
     }
 
     return {
       id: cachedUser.id,
-      email: cachedUser.email,
-      fullName: cachedUser.fullName,
       role: cachedUser.role as CurrentUserPayload['role'],
+      branchId: cachedUser.branchId,
     };
   }
 }
