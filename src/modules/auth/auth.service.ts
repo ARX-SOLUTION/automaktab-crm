@@ -72,8 +72,10 @@ export class AuthService {
   }
 
   private async authenticate(dto: LoginDto): Promise<AuthenticatedUser> {
+    const normalizedPhone = dto.phone.replace(/\s+/g, '');
+
     const user = await this.prisma.user.findFirst({
-      where: { phone: dto.phone, deletedAt: null },
+      where: { phone: normalizedPhone, deletedAt: null },
       include: {
         branch: {
           select: {
