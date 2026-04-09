@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 import { TemplateService, TemplateUserContext } from '@infra/templates';
 
-import { Role } from '@prisma/client';
-
 import { BranchesService } from '../branches';
 import { GroupsService } from '../groups';
 import { ReportsService } from '../reports';
@@ -12,6 +10,7 @@ import { UsersService } from '../users';
 import {
   SsrBaseQueryDto,
   SsrDashboardQueryDto,
+  SsrGroupsQueryDto,
   SsrManagersQueryDto,
   SsrReportsQueryDto,
   SsrStudentsQueryDto,
@@ -148,6 +147,7 @@ export class PagesService {
       this.usersService.findAll({
         branchId: query.branchId,
         search: query.search,
+        status: query.status,
       }),
     ]);
 
@@ -167,6 +167,7 @@ export class PagesService {
       filters: {
         branchId: query.branchId,
         search: query.search,
+        status: query.status,
       },
       flash: this.resolveFlash(query),
     });
@@ -206,12 +207,30 @@ export class PagesService {
     });
   }
 
-  async renderGroupsOverview(user: TemplateUserContext, query: SsrBaseQueryDto) {
+  async renderGroupsOverview(user: TemplateUserContext, query: SsrGroupsQueryDto) {
     const [branches, overview, groups] = await Promise.all([
       this.branchesService.findAll(user),
       this.groupsService.getOverview(),
-      this.groupsService.findAll({}, user),
+      this.groupsService.findAll(
+        {
+          branchId: query.branchId,
+          search: query.search,
+        },
+        user,
+      ),
     ]);
+
+    const filteredOverview = overview
+      .filter((item) => !query.branchId || item.branch.id === query.branchId)
+      .map((item) => ({
+        ...item,
+        groups: query.search
+          ? item.groups.filter((group) =>
+              group.name.toLocaleLowerCase('uz-UZ').includes(query.search!.toLocaleLowerCase('uz-UZ')),
+            )
+          : item.groups,
+      }))
+      .filter((item) => item.groups.length > 0 || (!query.search && !query.branchId));
 
     return this.templates.render('groups-overview', {
       title: 'Guruhlar',
@@ -225,8 +244,12 @@ export class PagesService {
       isManager: user.isManager,
       branchCount: branches.length,
       branches: branches.map((branch) => ({ id: branch.id, name: branch.name })),
-      overview,
+      overview: filteredOverview,
       groups,
+      filters: {
+        branchId: query.branchId,
+        search: query.search,
+      },
       flash: this.resolveFlash(query),
     });
   }

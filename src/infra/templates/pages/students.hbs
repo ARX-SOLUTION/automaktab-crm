@@ -1,4 +1,4 @@
-{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
+{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount pageDescription=pageDescription}}
   <div class="page-stack">
     <section class="page-hero">
       <div class="page-hero-copy">
@@ -11,6 +11,21 @@
         <button class="btn-primary" type="button" data-modal-open="student-create-modal">Talaba qo'shish</button>
       </div>
     </section>
+
+    <nav class="course-tabs" aria-label="Kurs turi filtrlari">
+      <a class="course-tab {{#unless filters.courseType}}is-active{{/unless}}" href="/app/students{{queryString filters courseType='' page=1 limit=meta.limit}}">
+        <strong>Barcha kurslar</strong>
+        <span>Express va to'liq kurslar birga</span>
+      </a>
+      <a class="course-tab {{#ifEquals filters.courseType 'express'}}is-active{{/ifEquals}}" href="/app/students{{queryString filters courseType='express' page=1 limit=meta.limit}}">
+        <strong>Tezkor kurs</strong>
+        <span>Bir martalik yoki ixcham to'lov oqimi</span>
+      </a>
+      <a class="course-tab {{#ifEquals filters.courseType 'standard'}}is-active{{/ifEquals}}" href="/app/students{{queryString filters courseType='standard' page=1 limit=meta.limit}}">
+        <strong>To'liq kurs</strong>
+        <span>Guruh va bo'lib-bo'lib to'lov bilan</span>
+      </a>
+    </nav>
 
     <form class="filters-bar filter-card" method="GET" action="/app/students">
       <div class="filter-group">
@@ -77,6 +92,13 @@
     </div>
 
     <section class="data-card">
+      <div class="table-card-header">
+        <div>
+          <h3>Talabalar jadvali</h3>
+          <p>{{meta.total}} ta natija topildi. Kurs turi tablari va filterlar bir-biri bilan uyg'un ishlaydi.</p>
+        </div>
+        <span class="badge">{{#if filters.courseType}}{{courseTypeLabel filters.courseType}}{{else}}Barcha kurslar{{/if}}</span>
+      </div>
       {{> student-table students=students summary=summary isOwner=user.isOwner}}
 
       {{#if meta.totalPages}}
@@ -122,8 +144,8 @@
                 </label>
                 <label>Shartnoma<input type="text" name="contractNumber" value="{{contractNumber}}"></label>
               {{/ifEquals}}
-              <label class="span-2">Izoh<textarea name="notes" rows="3">{{notes}}</textarea></label>
-              <button class="btn-primary span-2" type="submit">Ma'lumotlarni saqlash</button>
+                <label class="span-2">Izoh<textarea name="notes" rows="3">{{notes}}</textarea></label>
+              <button class="btn-primary span-2" type="submit" data-loading-text="Saqlanmoqda...">Ma'lumotlarni saqlash</button>
             </form>
             <form action="/app/students/{{id}}/payment" method="POST" class="form-grid">
               {{#ifEquals courseType 'express'}}
@@ -133,11 +155,21 @@
                 <label>2-to'lov<input type="number" name="secondPayment" value="{{secondPayment}}" min="0"></label>
                 <label>3-to'lov<input type="number" name="thirdPayment" value="{{thirdPayment}}" min="0"></label>
               {{/ifEquals}}
-              <button class="btn-secondary span-2" type="submit">To'lovni yangilash</button>
+              <button class="btn-secondary span-2" type="submit" data-loading-text="Yangilanmoqda...">To'lovni yangilash</button>
             </form>
-            <form action="/app/students/{{id}}/delete" method="POST" class="danger-form">
-              <button class="btn-danger" type="submit">Talabani o'chirish</button>
-            </form>
+            <div class="danger-form">
+              <button
+                class="btn-danger"
+                type="button"
+                data-modal-open="delete-modal"
+                data-confirm-action="/app/students/{{id}}/delete"
+                data-confirm-title="Talabani o'chirish"
+                data-confirm-description="{{lastName}} {{firstName}} yozuvini butunlay o'chirmoqchimisiz?"
+                data-confirm-button="Ha, o'chirish"
+              >
+                Talabani o'chirish
+              </button>
+            </div>
           </div>
         </div>
       </div>

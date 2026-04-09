@@ -25,6 +25,7 @@ import { CreateUserDto, ResetUserPasswordDto, UpdateUserDto } from '../users';
 import {
   SsrBaseQueryDto,
   SsrDashboardQueryDto,
+  SsrGroupsQueryDto,
   SsrManagersQueryDto,
   SsrReportsQueryDto,
   SsrStudentsQueryDto,
@@ -321,7 +322,7 @@ export class PagesController {
   @Get('app/groups/overview')
   async groupsOverview(
     @CurrentUser() user: TemplateUserContext,
-    @Query() query: SsrBaseQueryDto,
+    @Query() query: SsrGroupsQueryDto,
     @Res() res: Response,
   ): Promise<void> {
     res.type('html').send(await this.pagesService.renderGroupsOverview(user, query));

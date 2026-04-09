@@ -1,21 +1,63 @@
 <aside class="sidebar">
   <div class="sidebar-header">
-    <div>
+    <div class="sidebar-brand">
       <p class="sidebar-eyebrow">Boshqaruv paneli</p>
-      <h3>Auto Test CRM</h3>
+      <h3>Auto Maktab CRM</h3>
+      <small>Kunlik operatsiyalar va nazorat bir joyda.</small>
     </div>
     <span class="user-role-badge {{user.role}}">
       {{#if user.isOwner}}Owner{{else}}Manager{{/if}}
     </span>
   </div>
+  <div class="sidebar-summary">
+    <span class="sidebar-summary-label">{{#if user.isOwner}}Faol filiallar{{else}}Sizning filialingiz{{/if}}</span>
+    <strong>{{#if user.isOwner}}{{branchCount}} ta{{else}}{{user.branchName}}{{/if}}</strong>
+    <small>{{#if user.isOwner}}Tizim bo'yicha barcha bo'limlar nazoratda{{else}}Kunlik ishlar shu filial bo'yicha yuritiladi{{/if}}</small>
+  </div>
   <nav class="sidebar-menu">
-    <a href="/app/dashboard" class="menu-item {{activeClass currentPage 'dashboard'}}">Dashboard</a>
-    <a href="/app/students" class="menu-item {{activeClass currentPage 'students'}}">Talabalar</a>
+    <a href="/app/dashboard" class="menu-item {{activeClass currentPage 'dashboard'}}">
+      <span class="menu-item-main">
+        <span class="menu-item-index">01</span>
+        <span>Dashboard</span>
+      </span>
+      <span class="menu-item-hint">Start</span>
+    </a>
+    <a href="/app/students" class="menu-item {{activeClass currentPage 'students'}}">
+      <span class="menu-item-main">
+        <span class="menu-item-index">02</span>
+        <span>Talabalar</span>
+      </span>
+      <span class="menu-item-hint">CRM</span>
+    </a>
     {{#if user.isOwner}}
-      <a href="/app/branches" class="menu-item {{activeClass currentPage 'branches'}}">Filiallar <span class="badge">{{branchCount}}</span></a>
-      <a href="/app/managers" class="menu-item {{activeClass currentPage 'managers'}}">Operatorlar</a>
-      <a href="/app/reports" class="menu-item {{activeClass currentPage 'reports'}}">Hisobotlar</a>
-      <a href="/app/groups/overview" class="menu-item {{activeClass currentPage 'groups'}}">Guruhlar</a>
+      <a href="/app/branches" class="menu-item {{activeClass currentPage 'branches'}}">
+        <span class="menu-item-main">
+          <span class="menu-item-index">03</span>
+          <span>Filiallar</span>
+        </span>
+        <span class="badge">{{branchCount}}</span>
+      </a>
+      <a href="/app/managers" class="menu-item {{activeClass currentPage 'managers'}}">
+        <span class="menu-item-main">
+          <span class="menu-item-index">04</span>
+          <span>Operatorlar</span>
+        </span>
+        <span class="menu-item-hint">Team</span>
+      </a>
+      <a href="/app/reports" class="menu-item {{activeClass currentPage 'reports'}}">
+        <span class="menu-item-main">
+          <span class="menu-item-index">05</span>
+          <span>Hisobotlar</span>
+        </span>
+        <span class="menu-item-hint">UZS</span>
+      </a>
+      <a href="/app/groups/overview" class="menu-item {{activeClass currentPage 'groups'}}">
+        <span class="menu-item-main">
+          <span class="menu-item-index">06</span>
+          <span>Guruhlar</span>
+        </span>
+        <span class="menu-item-hint">STD</span>
+      </a>
     {{else}}
       <div class="sidebar-branch-info">
         <small>Filial</small>
@@ -25,7 +67,7 @@
   </nav>
   <div class="sidebar-footer">
     <form action="/app/logout" method="POST">
-      <button type="submit" class="btn-logout">Chiqish</button>
+      <button type="submit" class="btn-logout" data-loading-text="Chiqilmoqda...">Chiqish</button>
     </form>
   </div>
 </aside>

@@ -1,13 +1,19 @@
 <nav class="pagination">
-  {{#if meta.hasPreviousPage}}
-    <a class="pagination-link" href="?page={{add meta.page -1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">
-      Oldingi
-    </a>
-  {{/if}}
-  <span class="pagination-status">{{meta.page}} / {{meta.totalPages}} sahifa</span>
-  {{#if meta.hasNextPage}}
-    <a class="pagination-link" href="?page={{add meta.page 1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">
-      Keyingi
-    </a>
-  {{/if}}
+  <div class="pagination-summary">
+    <strong>{{meta.page}} / {{meta.totalPages}}</strong>
+    <span>{{meta.total}} ta yozuvdan sahifa ko'rinishi</span>
+  </div>
+  <div class="pagination-actions">
+    {{#if meta.hasPreviousPage}}
+      <a class="pagination-link" href="{{queryString filters page=(add meta.page -1) limit=meta.limit}}">
+        Oldingi
+      </a>
+    {{/if}}
+    <span class="pagination-status">{{meta.limit}} ta yozuv / sahifa</span>
+    {{#if meta.hasNextPage}}
+      <a class="pagination-link" href="{{queryString filters page=(add meta.page 1) limit=meta.limit}}">
+        Keyingi
+      </a>
+    {{/if}}
+  </div>
 </nav>

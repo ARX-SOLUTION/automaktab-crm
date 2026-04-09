@@ -1,5 +1,13 @@
 import { TemplateService } from './template.service';
-import { DashboardPageContext, StudentsPageContext, TemplateUserContext } from './types';
+import {
+  BranchesPageContext,
+  DashboardPageContext,
+  GroupsOverviewPageContext,
+  ManagersPageContext,
+  ReportsPageContext,
+  StudentsPageContext,
+  TemplateUserContext,
+} from './types';
 
 describe('TemplateService', () => {
   let service: TemplateService;
@@ -140,6 +148,160 @@ describe('TemplateService', () => {
     expect(html).toContain('value="branch-1" selected');
     expect(html).not.toContain('Samarqand</option>');
     expect(html).not.toContain('/app/branches');
+  });
+
+  it('renders owner management pages without template errors', async () => {
+    const branchesContext: BranchesPageContext = {
+      title: 'Filiallar',
+      pageTitle: 'Filiallar',
+      currentPage: 'branches',
+      pageScript: 'branches',
+      pageDescription: "Filiallarni boshqarish",
+      user: ownerUser,
+      isOwner: true,
+      isManager: false,
+      branchCount: 2,
+      branches: [
+        {
+          id: 'branch-1',
+          name: 'Minor',
+          address: 'Yunusobod',
+          phone: '+998900000001',
+          isActive: true,
+          createdAt: new Date(),
+        },
+        {
+          id: 'branch-2',
+          name: 'Samarqand',
+          address: 'Registon',
+          phone: null,
+          isActive: true,
+          createdAt: new Date(),
+        },
+      ],
+      flash: undefined,
+    };
+
+    const managersContext: ManagersPageContext = {
+      title: 'Operatorlar',
+      pageTitle: 'Operatorlar',
+      currentPage: 'managers',
+      pageScript: 'managers',
+      pageDescription: "Operatorlarni boshqarish",
+      user: ownerUser,
+      isOwner: true,
+      isManager: false,
+      branchCount: 2,
+      branches: [
+        { id: 'branch-1', name: 'Minor' },
+        { id: 'branch-2', name: 'Samarqand' },
+      ],
+      managers: [
+        {
+          id: 'manager-1',
+          fullName: 'Minor Manager',
+          phone: '+998901111111',
+          role: 'manager',
+          branchId: 'branch-1',
+          branchName: 'Minor',
+          isActive: true,
+          createdAt: new Date(),
+        },
+      ],
+      filters: {},
+      flash: undefined,
+    };
+
+    const reportsContext: ReportsPageContext = {
+      title: 'Hisobotlar',
+      pageTitle: 'Hisobotlar',
+      currentPage: 'reports',
+      pageScript: 'reports',
+      pageDescription: "Moliyaviy hisobotlar",
+      user: ownerUser,
+      isOwner: true,
+      isManager: false,
+      branchCount: 2,
+      branches: [
+        { id: 'branch-1', name: 'Minor' },
+        { id: 'branch-2', name: 'Samarqand' },
+      ],
+      filters: {},
+      revenue: {
+        totalRevenue: 12000000,
+        totalDebt: 3000000,
+        totalStudents: 18,
+        byBranch: [
+          {
+            branchId: 'branch-1',
+            branchName: 'Minor',
+            revenue: 7000000,
+            debt: 1000000,
+            studentCount: 10,
+          },
+        ],
+        byCourseType: [
+          {
+            courseType: 'express',
+            revenue: 5000000,
+            debt: 500000,
+            studentCount: 8,
+          },
+        ],
+      },
+      flash: undefined,
+    };
+
+    const groupsContext: GroupsOverviewPageContext = {
+      title: 'Guruhlar',
+      pageTitle: 'Guruhlar',
+      currentPage: 'groups',
+      pageScript: 'groups',
+      pageDescription: "Guruhlar overview",
+      user: ownerUser,
+      isOwner: true,
+      isManager: false,
+      branchCount: 2,
+      branches: [
+        { id: 'branch-1', name: 'Minor' },
+        { id: 'branch-2', name: 'Samarqand' },
+      ],
+      overview: [
+        {
+          branch: {
+            id: 'branch-1',
+            name: 'Minor',
+          },
+          groups: [
+            {
+              id: 'group-1',
+              name: 'B-12',
+              totalStudents: 12,
+              activeStudents: 9,
+            },
+          ],
+        },
+      ],
+      groups: [
+        {
+          id: 'group-1',
+          name: 'B-12',
+          branchId: 'branch-1',
+          branchName: 'Minor',
+          isActive: true,
+          totalStudents: 12,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      filters: {},
+      flash: undefined,
+    };
+
+    await expect(service.render('branches', branchesContext)).resolves.toContain('Filiallar jadvali');
+    await expect(service.render('managers', managersContext)).resolves.toContain('Operatorlar jadvali');
+    await expect(service.render('reports', reportsContext)).resolves.toContain('Kurs turi kesimida ko\'rinish');
+    await expect(service.render('groups-overview', groupsContext)).resolves.toContain('Guruhlar jadvali');
   });
 
   it('caches compiled templates', async () => {

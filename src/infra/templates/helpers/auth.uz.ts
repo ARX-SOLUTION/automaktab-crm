@@ -31,7 +31,7 @@ export function registerAuthHelpers(handlebars: typeof Handlebars): void {
 
     if (user.isOwner) {
       buttons.push(
-        `<button class="btn-icon btn-delete" type="button" data-delete-id="${studentId}" data-modal-open="delete-modal" title="O'chirish">O'chir</button>`,
+        `<button class="btn-icon btn-delete" type="button" data-modal-open="delete-modal" data-confirm-action="/app/students/${studentId}/delete" data-confirm-title="Talabani o'chirish" data-confirm-description="Tanlangan talabani tizimdan olib tashlamoqchimisiz?" data-confirm-button="Ha, o'chirish" title="O'chirish">O'chir</button>`,
       );
     }
 

@@ -1,10 +1,14 @@
-{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
+{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount pageDescription=pageDescription}}
   <div class="page-stack">
     <section class="page-hero">
       <div class="page-hero-copy">
         <span class="page-eyebrow">Operatorlar</span>
         <h1 class="page-title">{{pageTitle}}</h1>
         <p class="page-description">{{pageDescription}}</p>
+      </div>
+      <div class="page-actions">
+        <a class="btn-ghost" href="/app/managers">Tozalash</a>
+        <button class="btn-primary" type="button" data-modal-open="manager-create-modal">Yangi operator</button>
       </div>
     </section>
 
@@ -22,23 +26,102 @@
           {{/each}}
         </select>
       </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select name="status">
+          <option value="">Barchasi</option>
+          <option value="active" {{ifEquals filters.status 'active' 'selected'}}>Faol</option>
+          <option value="inactive" {{ifEquals filters.status 'inactive' 'selected'}}>Nofaol</option>
+        </select>
+      </div>
       <div class="filter-actions">
         <button class="btn-secondary" type="submit">Filtrni qo'llash</button>
-        <a class="btn-ghost" href="/app/managers">Tozalash</a>
+        <a class="btn-ghost" href="/app/managers">Filtrni tozalash</a>
       </div>
     </form>
 
-    <section class="resource-section">
-      <div class="section-heading">
+    <section class="data-card">
+      <div class="table-card-header">
         <div>
-          <h3>Yangi operator</h3>
-          <p>Yangi filial operatorini qo'shing va boshlang'ich kirish ma'lumotlarini belgilang.</p>
+          <h3>Operatorlar jadvali</h3>
+          <p>Operator profili, filial birikmasi va holatini modal orqali boshqaring.</p>
         </div>
+        <span class="badge">{{managers.length}} ta operator</span>
       </div>
-      <form action="/app/managers" method="POST" class="form-grid inline-form">
-        <label>F.I.SH<input type="text" name="fullName" required></label>
-        <label>Telefon<input type="text" name="phone" required></label>
-        <label>Parol<input type="password" name="password" required></label>
+
+      <div class="table-wrapper">
+        <table class="data-table compact-table">
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th>Telefon</th>
+              <th>Filial</th>
+              <th>Status</th>
+              <th>Qo'shilgan sana</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if managers.length}}
+              {{#each managers}}
+                <tr>
+                  <td>
+                    <div class="cell-stack">
+                      <strong>{{fullName}}</strong>
+                      <span class="cell-muted">{{id}}</span>
+                    </div>
+                  </td>
+                  <td>{{phone}}</td>
+                  <td>{{branchName}}</td>
+                  <td>
+                    <span class="{{#if isActive}}status-pill success{{else}}status-pill neutral{{/if}}">
+                      {{#if isActive}}Faol{{else}}Nofaol{{/if}}
+                    </span>
+                  </td>
+                  <td>{{formatDateUZ createdAt}}</td>
+                  <td class="actions-cell">
+                    <button class="btn-icon btn-edit" type="button" data-modal-open="manager-edit-{{id}}">Tahrir</button>
+                    <button class="btn-icon" type="button" data-modal-open="manager-password-{{id}}">Parol</button>
+                    {{#if isActive}}
+                      <button
+                        class="btn-icon btn-delete"
+                        type="button"
+                        data-modal-open="delete-modal"
+                        data-confirm-action="/app/managers/{{id}}/deactivate"
+                        data-confirm-title="Operatorni deaktivatsiya qilish"
+                        data-confirm-description="{{fullName}} operatorini nofaol holatga o'tkazmoqchimisiz?"
+                        data-confirm-button="Ha, deaktivatsiya"
+                      >
+                        Deaktiv
+                      </button>
+                    {{else}}
+                      <span class="badge badge-danger">Nofaol</span>
+                    {{/if}}
+                  </td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr class="table-empty-row">
+                <td colspan="6">{{> empty-state message="Tanlangan filter bo'yicha operator topilmadi" icon="OP" }}</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="manager-create-modal">
+    <div class="modal-content">
+      <button class="modal-close" type="button" data-modal-close="manager-create-modal">×</button>
+      <div class="modal-header">
+        <h3>Yangi operator qo'shish</h3>
+        <p>Yangi filial operatorini yarating va boshlang'ich kirish ma'lumotlarini belgilang.</p>
+      </div>
+      <form action="/app/managers" method="POST" class="form-grid">
+        <label>F.I.SH<input type="text" name="fullName" placeholder="Masalan, Ali Valiyev" required></label>
+        <label>Telefon<input type="text" name="phone" placeholder="+998 90 123 45 67" required></label>
+        <label>Parol<input type="password" name="password" placeholder="Kamida 6 ta belgi" required></label>
         <label>
           Filial
           <select name="branchId" required>
@@ -47,47 +130,56 @@
             {{/each}}
           </select>
         </label>
-        <button class="btn-primary" type="submit">Operator qo'shish</button>
+        <div class="modal-actions span-2">
+          <button class="btn-secondary" type="button" data-modal-close="manager-create-modal">Bekor qilish</button>
+          <button class="btn-primary" type="submit" data-loading-text="Saqlanmoqda...">Operatorni saqlash</button>
+        </div>
       </form>
-    </section>
-
-    <div class="resource-list resource-list-wide">
-      {{#each managers}}
-        <article class="resource-card">
-          <div class="resource-card-header">
-            <div>
-              <h4>{{fullName}}</h4>
-              <p>{{phone}}</p>
-            </div>
-            <span class="{{#if isActive}}status-pill success{{else}}status-pill danger{{/if}}">
-              {{#if isActive}}Faol{{else}}Deaktiv{{/if}}
-            </span>
-          </div>
-          <div class="resource-meta">
-            <span>Filial: {{branchName}}</span>
-          </div>
-          <form action="/app/managers/{{id}}/update" method="POST" class="form-grid inline-form">
-            <label>F.I.SH<input type="text" name="fullName" value="{{fullName}}"></label>
-            <label>Telefon<input type="text" name="phone" value="{{phone}}"></label>
-            <label>
-              Filial
-              <select name="branchId">
-                {{#each ../branches}}
-                  <option value="{{id}}" {{ifEquals ../branchId id 'selected'}}>{{name}}</option>
-                {{/each}}
-              </select>
-            </label>
-            <button class="btn-secondary" type="submit">Yangilash</button>
-          </form>
-          <form action="/app/managers/{{id}}/reset-password" method="POST" class="inline-form compact-form">
-            <label>Yangi parol<input type="password" name="newPassword" required></label>
-            <button class="btn-secondary" type="submit">Parolni almashtirish</button>
-          </form>
-          <form action="/app/managers/{{id}}/deactivate" method="POST">
-            <button class="btn-danger" type="submit">Deaktivatsiya</button>
-          </form>
-        </article>
-      {{/each}}
     </div>
   </div>
+
+  {{#each managers}}
+    <div class="modal" id="manager-edit-{{id}}">
+      <div class="modal-content">
+        <button class="modal-close" type="button" data-modal-close="manager-edit-{{id}}">×</button>
+        <div class="modal-header">
+          <h3>{{fullName}} operatorini tahrirlash</h3>
+          <p>Kontakt va filial birikmasini yangilang.</p>
+        </div>
+        <form action="/app/managers/{{id}}/update" method="POST" class="form-grid">
+          <label>F.I.SH<input type="text" name="fullName" value="{{fullName}}" required></label>
+          <label>Telefon<input type="text" name="phone" value="{{phone}}" required></label>
+          <label class="span-2">
+            Filial
+            <select name="branchId" required>
+              {{#each ../branches}}
+                <option value="{{id}}" {{ifEquals ../branchId id 'selected'}}>{{name}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <div class="modal-actions span-2">
+            <button class="btn-secondary" type="button" data-modal-close="manager-edit-{{id}}">Yopish</button>
+            <button class="btn-primary" type="submit" data-loading-text="Yangilanmoqda...">Saqlash</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="manager-password-{{id}}">
+      <div class="modal-content modal-sm">
+        <button class="modal-close" type="button" data-modal-close="manager-password-{{id}}">×</button>
+        <div class="modal-header">
+          <h4>{{fullName}} uchun parolni yangilash</h4>
+          <p>Yangi parol kamida 6 ta belgidan iborat bo'lsin.</p>
+        </div>
+        <form action="/app/managers/{{id}}/reset-password" method="POST" class="form-grid">
+          <label class="span-2">Yangi parol<input type="password" name="newPassword" required></label>
+          <div class="modal-actions span-2">
+            <button class="btn-secondary" type="button" data-modal-close="manager-password-{{id}}">Bekor qilish</button>
+            <button class="btn-primary" type="submit" data-loading-text="Yangilanmoqda...">Parolni almashtirish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {{/each}}
 {{/main}}

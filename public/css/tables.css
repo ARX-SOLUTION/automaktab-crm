@@ -6,19 +6,24 @@
   width: 100%;
   overflow-x: auto;
   border-radius: 18px;
+  border: 1px solid #e2e8f0;
 }
 
 .data-table,
 .students-table {
   width: 100%;
-  min-width: 2100px;
+  min-width: 920px;
   border-collapse: separate;
   border-spacing: 0;
   table-layout: fixed;
 }
 
+.students-table {
+  min-width: 2100px;
+}
+
 .compact-table {
-  min-width: 720px;
+  min-width: 760px;
 }
 
 .students-table col.col-index {
@@ -58,14 +63,14 @@
 }
 
 .students-table col.col-actions {
-  width: 120px;
+  width: 140px;
 }
 
 .data-table th,
 .data-table td,
 .students-table th,
 .students-table td {
-  padding: 0.9rem 0.85rem;
+  padding: 0.88rem 0.85rem;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
   background: #ffffff;
@@ -78,10 +83,10 @@
   z-index: 1;
   background: #f8fafc;
   color: #64748b;
-  font-size: 0.77rem;
+  font-size: 0.76rem;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-weight: 800;
   text-align: left;
   white-space: nowrap;
 }
@@ -105,17 +110,21 @@
   font-size: 0.92rem;
 }
 
-.students-table .cell-primary strong,
-.students-table .cell-stack strong {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.table-empty-row td {
+  padding: 0;
 }
 
 .cell-stack {
   display: grid;
   gap: 0.18rem;
   min-width: 0;
+}
+
+.cell-primary strong,
+.cell-stack strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cell-muted {
@@ -132,9 +141,9 @@
 
 .actions-cell {
   display: flex;
-  gap: 0.45rem;
   align-items: center;
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
 
 .summary-row td {
