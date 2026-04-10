@@ -38,4 +38,14 @@ export function registerUiHelpers(handlebars: typeof Handlebars): void {
     const numB = Number(b);
     return Number.isFinite(numA) && Number.isFinite(numB) && numB !== 0 ? numA / numB : 0;
   });
+
+  handlebars.registerHelper('userInitials', (fullName: unknown) => {
+    if (typeof fullName !== 'string' || !fullName.trim()) return '??';
+    return fullName
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0].toUpperCase())
+      .join('');
+  });
 }
