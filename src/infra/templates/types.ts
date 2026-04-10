@@ -35,7 +35,6 @@ export interface PageFilterContext {
   courseType?: string;
   startDate?: string;
   endDate?: string;
-  isActive?: string;
 }
 
 export interface PageMetaContext {
@@ -123,7 +122,7 @@ export interface GroupsOverviewPageContext extends PageMetaContext {
   branches: Array<Pick<BranchResponse, 'id' | 'name'>>;
   overview: GroupOverviewResponse[];
   groups: GroupResponse[];
-  filters?: PageFilterContext;
+  filters: PageFilterContext;
 }
 
 export interface PageContextMap {

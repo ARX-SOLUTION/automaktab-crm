@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
 
 import { toOptionalText } from '@common/dto';
 
@@ -16,4 +16,10 @@ export class GetUsersQueryDto {
   @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
+
+  @ApiPropertyOptional({ enum: ['active', 'inactive'], description: 'Filter by user status' })
+  @IsOptional()
+  @Transform(toOptionalText)
+  @IsIn(['active', 'inactive'])
+  status?: 'active' | 'inactive';
 }

@@ -1,4 +1,4 @@
-{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount}}
+{{#> main title=title pageTitle=pageTitle currentPage=currentPage pageScript=pageScript user=user flash=flash isOwner=isOwner isManager=isManager branchCount=branchCount pageDescription=pageDescription}}
   <div class="page-stack">
     <section class="page-hero">
       <div class="page-hero-copy">
@@ -7,7 +7,7 @@
         <p class="page-description">{{pageDescription}}</p>
       </div>
       <div class="page-actions">
-        <a class="btn-ghost" href="/app/reports">Tozalash</a>
+        <a class="btn-secondary" href="/app/reports">Tozalash</a>
       </div>
     </section>
 
@@ -39,34 +39,40 @@
       </div>
       <div class="filter-actions">
         <button class="btn-secondary" type="submit">Hisobotni yangilash</button>
-        <a class="btn-ghost" href="/app/reports">Tozalash</a>
+        <a class="btn-ghost" href="/app/reports">Filtrni tozalash</a>
       </div>
     </form>
 
     <div class="stats-grid">
       <div class="stat-card success">
-        <div class="stat-icon-wrap bg-success">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <div class="stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 12h16M12 4v16M6 6h12v12H6z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
         <div class="stat-body">
           <span class="stat-label">Jami tushum</span>
           <h3>{{formatUZS revenue.totalRevenue}}</h3>
-          <small>Tanlangan oraliq bo'yicha tushum</small>
+          <small>Tanlangan oraliq bo'yicha real tushum</small>
         </div>
       </div>
       <div class="stat-card warning">
-        <div class="stat-icon-wrap bg-danger">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div class="stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l8 14H4l8-14zm0 5v4m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
         <div class="stat-body">
           <span class="stat-label">Qarzdorlik</span>
           <h3>{{formatUZS revenue.totalDebt}}</h3>
-          <small>Faol talabalar qarzdorligi</small>
+          <small>Faol talabalar kesimidagi ochiq qarz</small>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon-wrap bg-primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <div class="stat-card info">
+        <div class="stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 19V5h14v14H5zm4-8h6m-6 4h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
         <div class="stat-body">
           <span class="stat-label">Talabalar soni</span>
@@ -76,47 +82,80 @@
       </div>
     </div>
 
-    <section class="data-card">
-      <div class="section-heading" style="padding:1.2rem 1.25rem 0">
-        <div>
-          <h3>Filiallar kesimida tushum</h3>
-          <p>Har bir filialning tushum va qarzdorlik ko'rsatkichlari.</p>
+    <div class="dashboard-panels dashboard-panels-two">
+      <section class="data-card">
+        <div class="table-card-header">
+          <div>
+            <h3>Filiallar kesimida tushum</h3>
+            <p>Har bir filial bo'yicha tushum, qarzdorlik va talabalar soni.</p>
+          </div>
         </div>
-      </div>
-      <div class="table-wrapper">
-        <table class="data-table compact-table">
-          <colgroup>
-            <col style="width:200px">
-            <col style="width:180px">
-            <col style="width:180px">
-            <col style="width:120px">
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Filial</th>
-              <th class="text-right">Tushum</th>
-              <th class="text-right">Qarzdorlik</th>
-              <th class="text-right">Talabalar</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#if revenue.byBranch.length}}
-              {{#each revenue.byBranch}}
-                <tr>
-                  <td><strong>{{branchName}}</strong></td>
-                  <td class="text-right tabular-nums text-success"><strong>{{formatUZS revenue}}</strong></td>
-                  <td class="text-right tabular-nums {{debtClass debt}}"><strong>{{formatUZS debt}}</strong></td>
-                  <td class="text-right tabular-nums">{{studentCount}}</td>
-                </tr>
-              {{/each}}
-            {{else}}
+        <div class="table-wrapper">
+          <table class="data-table compact-table">
+            <thead>
               <tr>
-                <td colspan="4">{{> empty-state message="Tanlangan filter bo'yicha hisobot topilmadi" icon="—" }}</td>
+                <th>Filial</th>
+                <th class="text-right">Tushum</th>
+                <th class="text-right">Qarzdorlik</th>
+                <th class="text-right">Talabalar</th>
               </tr>
-            {{/if}}
-          </tbody>
-        </table>
-      </div>
-    </section>
+            </thead>
+            <tbody>
+              {{#if revenue.byBranch.length}}
+                {{#each revenue.byBranch}}
+                  <tr>
+                    <td>{{branchName}}</td>
+                    <td class="text-right tabular-nums">{{formatUZS revenue}}</td>
+                    <td class="text-right tabular-nums {{debtClass debt}}">{{formatUZS debt}}</td>
+                    <td class="text-right tabular-nums">{{studentCount}}</td>
+                  </tr>
+                {{/each}}
+              {{else}}
+                <tr class="table-empty-row">
+                  <td colspan="4">{{> empty-state message="Filiallar bo'yicha hisobot topilmadi" icon="UZS" }}</td>
+                </tr>
+              {{/if}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="data-card">
+        <div class="table-card-header">
+          <div>
+            <h3>Kurs turi kesimida ko'rinish</h3>
+            <p>Express va to'liq kurslar bo'yicha moliyaviy taqsimot.</p>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table compact-table">
+            <thead>
+              <tr>
+                <th>Kurs turi</th>
+                <th class="text-right">Tushum</th>
+                <th class="text-right">Qarzdorlik</th>
+                <th class="text-right">Talabalar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#if revenue.byCourseType.length}}
+                {{#each revenue.byCourseType}}
+                  <tr>
+                    <td>{{courseTypeLabel courseType}}</td>
+                    <td class="text-right tabular-nums">{{formatUZS revenue}}</td>
+                    <td class="text-right tabular-nums {{debtClass debt}}">{{formatUZS debt}}</td>
+                    <td class="text-right tabular-nums">{{studentCount}}</td>
+                  </tr>
+                {{/each}}
+              {{else}}
+                <tr class="table-empty-row">
+                  <td colspan="4">{{> empty-state message="Kurs turi bo'yicha hisobot topilmadi" icon="CR" }}</td>
+                </tr>
+              {{/if}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </div>
 {{/main}}

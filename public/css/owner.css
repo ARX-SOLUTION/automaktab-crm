@@ -1,0 +1,3 @@
+.sidebar .menu-item.active {
+  box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.4);
+}

@@ -2,13 +2,13 @@
   <div class="modal-content modal-sm">
     <button class="modal-close" type="button" data-modal-close="delete-modal">×</button>
     <div class="modal-header">
-      <h4>O'chirishni tasdiqlang</h4>
-      <p>Bu amal qaytarilmaydi. Davom etishdan oldin yozuv to'g'riligini tekshiring.</p>
+      <h4 id="delete-modal-title">Amalni tasdiqlang</h4>
+      <p id="delete-modal-description">Bu amal qaytarilmaydi. Davom etishdan oldin yozuv to'g'riligini tekshiring.</p>
     </div>
-    <form id="delete-form" method="POST">
+    <form id="delete-form" method="POST" class="modal-form-stack">
       <div class="modal-actions">
         <button class="btn-secondary" type="button" data-modal-close="delete-modal">Yo'q</button>
-        <button class="btn-danger" type="submit">Ha, o'chirish</button>
+        <button class="btn-danger" id="delete-modal-submit" type="submit" data-loading-text="Bajarilmoqda...">Ha, davom etish</button>
       </div>
     </form>
   </div>

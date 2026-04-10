@@ -97,11 +97,11 @@ export class SsrManagersQueryDto extends SsrBaseQueryDto {
   @IsUUID()
   branchId?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ enum: ['active', 'inactive'] })
   @IsOptional()
   @Transform(toOptionalText)
-  @IsIn(['true', 'false'])
-  isActive?: string;
+  @IsIn(['active', 'inactive'])
+  status?: 'active' | 'inactive';
 }
 
 export class SsrGroupsQueryDto extends SsrBaseQueryDto {
