@@ -7,12 +7,28 @@
         <p class="page-description">{{pageDescription}}</p>
       </div>
       <div class="page-actions">
-        <a class="btn-secondary" href="/app/students">Tozalash</a>
-        <button class="btn-primary" type="button" data-modal-open="student-create-modal">Talaba qo'shish</button>
+        <button class="btn-primary" type="button" data-modal-open="student-create-modal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Talaba qo'shish
+        </button>
       </div>
     </section>
 
+    <div class="tab-nav">
+      <a class="tab-btn {{#unless filters.courseType}}active{{/unless}}{{#ifEquals filters.courseType '' }}active{{/ifEquals}}" href="/app/students?{{#if filters.branchId}}branchId={{filters.branchId}}&{{/if}}{{#if filters.search}}search={{filters.search}}&{{/if}}{{#if filters.status}}status={{filters.status}}{{/if}}">
+        Barchasi
+        <span class="tab-count">{{meta.total}}</span>
+      </a>
+      <a class="tab-btn {{ifEquals filters.courseType 'express' 'active'}}" href="/app/students?courseType=express{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}">
+        Tezkor kurs
+      </a>
+      <a class="tab-btn {{ifEquals filters.courseType 'standard' 'active'}}" href="/app/students?courseType=standard{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}">
+        Avto maktab kursi
+      </a>
+    </div>
+
     <form class="filters-bar filter-card" method="GET" action="/app/students">
+      {{#if filters.courseType}}<input type="hidden" name="courseType" value="{{filters.courseType}}">{{/if}}
       <div class="filter-group">
         <label>Qidiruv</label>
         <input type="search" name="search" value="{{filters.search}}" placeholder="Ism, familya yoki telefon">
@@ -24,14 +40,6 @@
         </select>
       </div>
       <div class="filter-group">
-        <label>Kurs turi</label>
-        <select name="courseType">
-          <option value="">Barcha kurslar</option>
-          <option value="express" {{ifEquals filters.courseType 'express' 'selected'}}>Tezkor kurs</option>
-          <option value="standard" {{ifEquals filters.courseType 'standard' 'selected'}}>To'liq kurs</option>
-        </select>
-      </div>
-      <div class="filter-group">
         <label>To'lov holati</label>
         <select name="status">
           <option value="">Barchasi</option>
@@ -40,34 +48,46 @@
         </select>
       </div>
       <div class="filter-actions">
-        <button class="btn-secondary" type="submit">Filtrni qo'llash</button>
-        <a class="btn-ghost" href="/app/students">Tozalash</a>
+        <button class="btn-secondary" type="submit">Qo'llash</button>
+        <a class="btn-ghost" href="/app/students{{#if filters.courseType}}?courseType={{filters.courseType}}{{/if}}">Tozalash</a>
       </div>
     </form>
 
     <div class="stats-grid">
       <div class="stat-card">
+        <div class="stat-icon-wrap bg-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
         <div class="stat-body">
-          <span class="stat-label">Sahifadagi talabalar</span>
+          <span class="stat-label">Jami natija</span>
           <h3>{{meta.total}}</h3>
-          <small>Joriy filter bo'yicha natija</small>
+          <small>Joriy filter bo'yicha</small>
         </div>
       </div>
       <div class="stat-card success">
+        <div class="stat-icon-wrap bg-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
         <div class="stat-body">
           <span class="stat-label">Jami tushum</span>
           <h3>{{formatUZS summary.totalPaid}}</h3>
-          <small>{{stats.paidCount}} ta to'langan talaba</small>
+          <small>{{stats.paidCount}} ta to'langan</small>
         </div>
       </div>
       <div class="stat-card warning">
+        <div class="stat-icon-wrap bg-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
         <div class="stat-body">
           <span class="stat-label">Qarzdorlik</span>
           <h3>{{formatUZS summary.totalDebt}}</h3>
-          <small>{{stats.debtCount}} ta qarzdor talaba</small>
+          <small>{{stats.debtCount}} ta qarzdor</small>
         </div>
       </div>
       <div class="stat-card info">
+        <div class="stat-icon-wrap bg-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
         <div class="stat-body">
           <span class="stat-label">Jami kontrakt</span>
           <h3>{{formatUZS summary.totalPrices}}</h3>
@@ -90,7 +110,7 @@
   </div>
 
   <section class="management-section">
-    <div class="section-heading">
+    <div class="section-heading" style="padding:1.2rem 1.25rem">
       <div>
         <h3>Tahrirlash va to'lov amallari</h3>
         <p>Har bir talaba bo'yicha ma'lumot, to'lov va o'chirish amallarini modal orqali boshqaring.</p>
@@ -99,10 +119,10 @@
     {{#each students}}
       <div class="modal embedded-modal" id="student-edit-{{id}}">
         <div class="modal-content modal-xl">
-          <button class="modal-close" type="button" data-modal-close="student-edit-{{id}}">×</button>
+          <button class="modal-close" type="button" data-modal-close="student-edit-{{id}}">&times;</button>
           <div class="modal-header">
             <h4>{{lastName}} {{firstName}}</h4>
-            <p>{{courseTypeLabel courseType}} • {{branch.name}}</p>
+            <p>{{courseTypeLabel courseType}} &bull; {{branch.name}}</p>
           </div>
           <div class="embedded-grid">
             <form action="/app/students/{{id}}/update" method="POST" class="form-grid">

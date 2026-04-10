@@ -36,8 +36,9 @@ document.querySelectorAll('[data-modal-open]').forEach((button) => {
     if (target === 'delete-modal') {
       const form = document.getElementById('delete-form');
       const id = button.getAttribute('data-delete-id');
-      if (form && id) {
-        form.setAttribute('action', `/app/students/${id}/delete`);
+      const deleteUrl = button.getAttribute('data-delete-url');
+      if (form && (id || deleteUrl)) {
+        form.setAttribute('action', deleteUrl || `/app/students/${id}/delete`);
       }
     }
   });
@@ -62,5 +63,60 @@ document.querySelectorAll('.modal').forEach((modal) => {
     if (event.target === modal) {
       modal.classList.remove('is-open');
     }
+  });
+});
+
+(function initToast() {
+  var container = document.querySelector('.toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  var alerts = document.querySelectorAll('.alert');
+  alerts.forEach(function (alert) {
+    var isSuccess = alert.classList.contains('alert-success');
+    var isError = alert.classList.contains('alert-error');
+    if (!isSuccess && !isError) return;
+
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + (isSuccess ? 'toast-success' : 'toast-error');
+    toast.textContent = alert.textContent.trim();
+    container.appendChild(toast);
+
+    alert.style.display = 'none';
+
+    setTimeout(function () {
+      toast.classList.add('toast-out');
+      setTimeout(function () { toast.remove(); }, 250);
+    }, 4000);
+  });
+})();
+
+document.addEventListener('click', function (event) {
+  document.querySelectorAll('.dropdown-actions.is-open').forEach(function (dd) {
+    if (!dd.contains(event.target)) {
+      dd.classList.remove('is-open');
+    }
+  });
+});
+
+document.querySelectorAll('[data-dropdown-toggle]').forEach(function (btn) {
+  btn.addEventListener('click', function (event) {
+    event.stopPropagation();
+    var parent = btn.closest('.dropdown-actions');
+    if (parent) {
+      parent.classList.toggle('is-open');
+    }
+  });
+});
+
+document.querySelectorAll('form[method="POST"] button[type="submit"]').forEach(function (btn) {
+  var form = btn.closest('form');
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
   });
 });

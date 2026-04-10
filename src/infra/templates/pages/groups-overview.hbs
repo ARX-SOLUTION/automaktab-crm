@@ -6,33 +6,40 @@
         <h1 class="page-title">{{pageTitle}}</h1>
         <p class="page-description">{{pageDescription}}</p>
       </div>
-    </section>
-
-    <section class="resource-section">
-      <div class="section-heading">
-        <div>
-          <h3>Yangi guruh</h3>
-          <p>To'liq kurs uchun yangi guruh oching va uni filialga biriktiring.</p>
-        </div>
+      <div class="page-actions">
+        {{#if isOwner}}
+          <button class="btn-primary" type="button" data-modal-open="group-create-modal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Guruh qo'shish
+          </button>
+        {{/if}}
       </div>
-      <form action="/app/groups" method="POST" class="form-grid inline-form">
-        <label>Nomi<input type="text" name="name" required></label>
-        <label>
-          Filial
-          <select name="branchId" required>
-            {{#each branches}}
-              <option value="{{id}}">{{name}}</option>
-            {{/each}}
-          </select>
-        </label>
-        <button class="btn-primary" type="submit">Guruh qo'shish</button>
-      </form>
     </section>
+
+    <form class="filters-bar filter-card" method="GET" action="/app/groups/overview">
+      <div class="filter-group">
+        <label>Qidiruv</label>
+        <input type="search" name="search" value="{{filters.search}}" placeholder="Guruh nomi">
+      </div>
+      <div class="filter-group">
+        <label>Filial</label>
+        <select name="branchId">
+          <option value="">Barcha filiallar</option>
+          {{#each branches}}
+            <option value="{{id}}" {{ifEquals ../filters.branchId id 'selected'}}>{{name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-secondary" type="submit">Qo'llash</button>
+        <a class="btn-ghost" href="/app/groups/overview">Tozalash</a>
+      </div>
+    </form>
 
     <section class="resource-section">
       <div class="section-heading">
         <div>
-          <h3>Filiallar kesimida overview</h3>
+          <h3>Filiallar kesimida</h3>
           <p>Har bir filialdagi guruhlar va faol talabalar soni.</p>
         </div>
       </div>
@@ -47,7 +54,15 @@
             </div>
             <ul class="plain-list">
               {{#each groups}}
-                <li>{{name}} — jami {{totalStudents}}, faol {{activeStudents}}</li>
+                <li>
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong>{{name}}</strong>
+                    <span class="cell-muted">{{activeStudents}} / {{totalStudents}}</span>
+                  </div>
+                  <div class="progress-bar-wrap" style="margin-top:0.35rem">
+                    <div class="progress-bar-fill" style="width:{{#if totalStudents}}{{multiply (divide activeStudents totalStudents) 100}}%{{else}}0%{{/if}}"></div>
+                  </div>
+                </li>
               {{/each}}
             </ul>
           </article>
@@ -55,43 +70,125 @@
       </div>
     </section>
 
-    <section class="resource-section">
-      <div class="section-heading">
+    <section class="data-card">
+      <div class="section-heading" style="padding:1.2rem 1.25rem 0">
         <div>
-          <h3>Guruhlarni boshqarish</h3>
+          <h3>Barcha guruhlar</h3>
           <p>Nomini yoki filialini yangilang, kerak bo'lsa olib tashlang.</p>
         </div>
       </div>
-      <div class="resource-list resource-list-wide">
-        {{#each groups}}
-          <article class="resource-card">
-            <div class="resource-card-header">
-              <div>
-                <h4>{{name}}</h4>
-                <p>{{branchName}}</p>
-              </div>
-              <span class="{{#if isActive}}status-pill success{{else}}status-pill danger{{/if}}">
-                {{#if isActive}}Faol{{else}}Yopilgan{{/if}}
-              </span>
-            </div>
-            <form action="/app/groups/{{id}}/update" method="POST" class="form-grid inline-form">
-              <label>Nomi<input type="text" name="name" value="{{name}}"></label>
-              <label>
-                Filial
-                <select name="branchId">
-                  {{#each ../branches}}
-                    <option value="{{id}}" {{ifEquals ../branchId id 'selected'}}>{{name}}</option>
-                  {{/each}}
-                </select>
-              </label>
-              <button class="btn-secondary" type="submit">Yangilash</button>
-            </form>
-            <form action="/app/groups/{{id}}/delete" method="POST">
-              <button class="btn-danger" type="submit">O'chirish</button>
-            </form>
-          </article>
-        {{/each}}
+      <div class="table-wrapper">
+        <table class="data-table">
+          <colgroup>
+            <col style="width:50px">
+            <col style="width:160px">
+            <col style="width:150px">
+            <col style="width:100px">
+            <col style="width:100px">
+            <col style="width:100px">
+            {{#if isOwner}}<col style="width:110px">{{/if}}
+          </colgroup>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Guruh nomi</th>
+              <th>Filial</th>
+              <th>Jami</th>
+              <th>Faol</th>
+              <th>Holat</th>
+              {{#if isOwner}}<th>Amallar</th>{{/if}}
+            </tr>
+          </thead>
+          <tbody>
+            {{#if groups.length}}
+              {{#each groups}}
+                <tr>
+                  <td>{{add @index 1}}</td>
+                  <td><strong>{{name}}</strong></td>
+                  <td><span class="branch-chip">{{branchName}}</span></td>
+                  <td class="text-right tabular-nums">{{totalStudents}}</td>
+                  <td class="text-right tabular-nums">—</td>
+                  <td>
+                    <span class="{{#if isActive}}status-pill success{{else}}status-pill danger{{/if}}">
+                      {{#if isActive}}Faol{{else}}Yopilgan{{/if}}
+                    </span>
+                  </td>
+                  {{#if ../isOwner}}
+                    <td>
+                      <div class="dropdown-actions">
+                        <button class="btn-icon btn-sm" type="button" data-dropdown-toggle>&#8943;</button>
+                        <div class="dropdown-menu">
+                          <button class="dropdown-item" type="button" data-modal-open="group-edit-{{id}}">Tahrirlash</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger" type="button" data-delete-url="/app/groups/{{id}}/delete" data-modal-open="delete-modal">O'chirish</button>
+                        </div>
+                      </div>
+                    </td>
+                  {{/if}}
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="7">{{> empty-state message="Guruh topilmadi" icon="—" }}</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
       </div>
     </section>
   </div>
+
+  {{#if isOwner}}
+    <div class="modal" id="group-create-modal">
+      <div class="modal-content modal-sm">
+        <button class="modal-close" type="button" data-modal-close="group-create-modal">&times;</button>
+        <div class="modal-header">
+          <h3>Yangi guruh qo'shish</h3>
+          <p>To'liq kurs uchun yangi guruh oching va uni filialga biriktiring.</p>
+        </div>
+        <form action="/app/groups" method="POST" class="form-grid">
+          <label class="span-2">Nomi<input type="text" name="name" placeholder="Masalan, B-1" required></label>
+          <label class="span-2">
+            Filial
+            <select name="branchId" required>
+              <option value="">Tanlang</option>
+              {{#each branches}}
+                <option value="{{id}}">{{name}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <div class="modal-actions span-2">
+            <button class="btn-secondary" type="button" data-modal-close="group-create-modal">Bekor qilish</button>
+            <button class="btn-primary" type="submit">Guruh qo'shish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {{#each groups}}
+      <div class="modal" id="group-edit-{{id}}">
+        <div class="modal-content modal-sm">
+          <button class="modal-close" type="button" data-modal-close="group-edit-{{id}}">&times;</button>
+          <div class="modal-header">
+            <h3>{{name}} — tahrirlash</h3>
+          </div>
+          <form action="/app/groups/{{id}}/update" method="POST" class="form-grid">
+            <label class="span-2">Nomi<input type="text" name="name" value="{{name}}"></label>
+            <label class="span-2">
+              Filial
+              <select name="branchId">
+                {{#each ../branches}}
+                  <option value="{{id}}" {{ifEquals ../branchId id 'selected'}}>{{name}}</option>
+                {{/each}}
+              </select>
+            </label>
+            <div class="modal-actions span-2">
+              <button class="btn-secondary" type="button" data-modal-close="group-edit-{{id}}">Bekor qilish</button>
+              <button class="btn-primary" type="submit">Saqlash</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    {{/each}}
+  {{/if}}
 {{/main}}

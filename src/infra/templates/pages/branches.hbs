@@ -6,49 +6,113 @@
         <h1 class="page-title">{{pageTitle}}</h1>
         <p class="page-description">{{pageDescription}}</p>
       </div>
+      <div class="page-actions">
+        {{#if isOwner}}
+          <button class="btn-primary" type="button" data-modal-open="branch-create-modal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Filial qo'shish
+          </button>
+        {{/if}}
+      </div>
     </section>
 
-    <section class="resource-section">
-      <div class="section-heading">
-        <div>
-          <h3>Yangi filial</h3>
+    <section class="data-card">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <colgroup>
+            <col style="width:50px">
+            <col style="width:180px">
+            <col style="width:240px">
+            <col style="width:150px">
+            <col style="width:100px">
+            <col style="width:120px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nomi</th>
+              <th>Manzil</th>
+              <th>Telefon</th>
+              <th>Holat</th>
+              {{#if isOwner}}<th>Amallar</th>{{/if}}
+            </tr>
+          </thead>
+          <tbody>
+            {{#if branches.length}}
+              {{#each branches}}
+                <tr>
+                  <td>{{add @index 1}}</td>
+                  <td><strong>{{name}}</strong></td>
+                  <td title="{{address}}">{{address}}</td>
+                  <td>{{#if phone}}{{phone}}{{else}}<span class="cell-muted">—</span>{{/if}}</td>
+                  <td>
+                    <span class="{{#if isActive}}status-pill success{{else}}status-pill danger{{/if}}">
+                      {{#if isActive}}Faol{{else}}Yopilgan{{/if}}
+                    </span>
+                  </td>
+                  {{#if ../isOwner}}
+                    <td>
+                      <div class="dropdown-actions">
+                        <button class="btn-icon btn-sm" type="button" data-dropdown-toggle>&#8943;</button>
+                        <div class="dropdown-menu">
+                          <button class="dropdown-item" type="button" data-modal-open="branch-edit-{{id}}">Tahrirlash</button>
+                          <div class="dropdown-divider"></div>
+                          <button class="dropdown-item danger" type="button" data-delete-url="/app/branches/{{id}}/delete" data-modal-open="delete-modal">O'chirish</button>
+                        </div>
+                      </div>
+                    </td>
+                  {{/if}}
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="6">{{> empty-state message="Filial topilmadi" icon="—" }}</td>
+              </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  {{#if isOwner}}
+    <div class="modal" id="branch-create-modal">
+      <div class="modal-content modal-sm">
+        <button class="modal-close" type="button" data-modal-close="branch-create-modal">&times;</button>
+        <div class="modal-header">
+          <h3>Yangi filial qo'shish</h3>
           <p>Yangi manzil va telefon bilan filialni tizimga qo'shing.</p>
         </div>
+        <form action="/app/branches" method="POST" class="form-grid">
+          <label class="span-2">Nomi<input type="text" name="name" placeholder="Masalan, Yunusobod" required></label>
+          <label class="span-2">Manzil<input type="text" name="address" placeholder="To'liq manzil" required></label>
+          <label class="span-2">Telefon<input type="text" name="phone" placeholder="+998 71 123 45 67"></label>
+          <div class="modal-actions span-2">
+            <button class="btn-secondary" type="button" data-modal-close="branch-create-modal">Bekor qilish</button>
+            <button class="btn-primary" type="submit">Filial qo'shish</button>
+          </div>
+        </form>
       </div>
-      <form action="/app/branches" method="POST" class="form-grid inline-form">
-        <label>Nomi<input type="text" name="name" required></label>
-        <label>Manzil<input type="text" name="address" required></label>
-        <label>Telefon<input type="text" name="phone"></label>
-        <button class="btn-primary" type="submit">Filial qo'shish</button>
-      </form>
-    </section>
-
-    <div class="resource-list resource-list-wide">
-      {{#each branches}}
-        <article class="resource-card">
-          <div class="resource-card-header">
-            <div>
-              <h4>{{name}}</h4>
-              <p>{{address}}</p>
-            </div>
-            <span class="{{#if isActive}}status-pill success{{else}}status-pill danger{{/if}}">
-              {{#if isActive}}Faol{{else}}Yopilgan{{/if}}
-            </span>
-          </div>
-          <div class="resource-meta">
-            <span>{{#if phone}}{{phone}}{{else}}Telefon kiritilmagan{{/if}}</span>
-          </div>
-          <form action="/app/branches/{{id}}/update" method="POST" class="form-grid inline-form">
-            <label>Nomi<input type="text" name="name" value="{{name}}"></label>
-            <label>Manzil<input type="text" name="address" value="{{address}}"></label>
-            <label>Telefon<input type="text" name="phone" value="{{phone}}"></label>
-            <button class="btn-secondary" type="submit">Yangilash</button>
-          </form>
-          <form action="/app/branches/{{id}}/delete" method="POST">
-            <button class="btn-danger" type="submit">O'chirish</button>
-          </form>
-        </article>
-      {{/each}}
     </div>
-  </div>
+
+    {{#each branches}}
+      <div class="modal" id="branch-edit-{{id}}">
+        <div class="modal-content modal-sm">
+          <button class="modal-close" type="button" data-modal-close="branch-edit-{{id}}">&times;</button>
+          <div class="modal-header">
+            <h3>{{name}} — tahrirlash</h3>
+          </div>
+          <form action="/app/branches/{{id}}/update" method="POST" class="form-grid">
+            <label class="span-2">Nomi<input type="text" name="name" value="{{name}}"></label>
+            <label class="span-2">Manzil<input type="text" name="address" value="{{address}}"></label>
+            <label class="span-2">Telefon<input type="text" name="phone" value="{{phone}}"></label>
+            <div class="modal-actions span-2">
+              <button class="btn-secondary" type="button" data-modal-close="branch-edit-{{id}}">Bekor qilish</button>
+              <button class="btn-primary" type="submit">Saqlash</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    {{/each}}
+  {{/if}}
 {{/main}}

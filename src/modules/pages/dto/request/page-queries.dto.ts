@@ -96,6 +96,26 @@ export class SsrManagersQueryDto extends SsrBaseQueryDto {
   @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(toOptionalText)
+  @IsIn(['true', 'false'])
+  isActive?: string;
+}
+
+export class SsrGroupsQueryDto extends SsrBaseQueryDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(toOptionalText)
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(toOptionalText)
+  @IsUUID()
+  branchId?: string;
 }
 
 export class SsrReportsQueryDto extends SsrBaseQueryDto {

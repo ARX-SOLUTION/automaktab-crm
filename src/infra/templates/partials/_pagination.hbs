@@ -1,13 +1,19 @@
 <nav class="pagination">
-  {{#if meta.hasPreviousPage}}
-    <a class="pagination-link" href="?page={{add meta.page -1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">
-      Oldingi
-    </a>
-  {{/if}}
-  <span class="pagination-status">{{meta.page}} / {{meta.totalPages}} sahifa</span>
-  {{#if meta.hasNextPage}}
-    <a class="pagination-link" href="?page={{add meta.page 1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">
-      Keyingi
-    </a>
-  {{/if}}
+  <div class="pagination-info">
+    {{#if meta.total}}
+      <strong>{{add (add (add (add meta.page -1) 0) 0) 0}}</strong>–<strong>{{#if meta.hasNextPage}}{{add (add (add meta.page -1) 0) meta.limit}}{{else}}{{meta.total}}{{/if}}</strong> / <strong>{{meta.total}}</strong> ta
+    {{else}}
+      0 ta natija
+    {{/if}}
+  </div>
+  <div class="pagination-nav">
+    {{#if meta.hasPreviousPage}}
+      <a class="pagination-link" href="?page={{add meta.page -1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">&#8249;</a>
+    {{/if}}
+    <span class="pagination-page active">{{meta.page}}</span>
+    <span class="pagination-ellipsis">/ {{meta.totalPages}}</span>
+    {{#if meta.hasNextPage}}
+      <a class="pagination-link" href="?page={{add meta.page 1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">&#8250;</a>
+    {{/if}}
+  </div>
 </nav>

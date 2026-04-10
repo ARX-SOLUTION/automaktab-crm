@@ -179,7 +179,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
   align-items: center;
   justify-content: center;
   padding: 1rem;
@@ -254,15 +255,69 @@
 
 .pagination {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.pagination-info {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.pagination-info strong {
+  color: var(--text);
+}
+
+.pagination-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-link,
+.pagination-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease;
 }
 
 .pagination-link {
-  color: #1d4ed8;
-  text-decoration: none;
-  font-weight: 600;
+  color: #475569;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+}
+
+.pagination-link:hover {
+  background: #e2e8f0;
+}
+
+.pagination-page {
+  color: #475569;
+  background: transparent;
+}
+
+.pagination-page:hover {
+  background: var(--surface-muted);
+}
+
+.pagination-page.active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.pagination-ellipsis {
+  color: #94a3b8;
+  padding: 0 0.3rem;
 }
 
 .pagination-status {

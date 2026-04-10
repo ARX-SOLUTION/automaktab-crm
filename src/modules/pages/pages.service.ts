@@ -167,6 +167,7 @@ export class PagesService {
       filters: {
         branchId: query.branchId,
         search: query.search,
+        isActive: query.isActive,
       },
       flash: this.resolveFlash(query),
     });
@@ -227,6 +228,10 @@ export class PagesService {
       branches: branches.map((branch) => ({ id: branch.id, name: branch.name })),
       overview,
       groups,
+      filters: {
+        branchId: query.branchId,
+        search: query.search,
+      },
       flash: this.resolveFlash(query),
     });
   }

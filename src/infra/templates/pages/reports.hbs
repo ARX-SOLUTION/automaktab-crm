@@ -7,7 +7,7 @@
         <p class="page-description">{{pageDescription}}</p>
       </div>
       <div class="page-actions">
-        <a class="btn-secondary" href="/app/reports">Tozalash</a>
+        <a class="btn-ghost" href="/app/reports">Tozalash</a>
       </div>
     </section>
 
@@ -45,6 +45,9 @@
 
     <div class="stats-grid">
       <div class="stat-card success">
+        <div class="stat-icon-wrap bg-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
         <div class="stat-body">
           <span class="stat-label">Jami tushum</span>
           <h3>{{formatUZS revenue.totalRevenue}}</h3>
@@ -52,6 +55,9 @@
         </div>
       </div>
       <div class="stat-card warning">
+        <div class="stat-icon-wrap bg-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
         <div class="stat-body">
           <span class="stat-label">Qarzdorlik</span>
           <h3>{{formatUZS revenue.totalDebt}}</h3>
@@ -59,6 +65,9 @@
         </div>
       </div>
       <div class="stat-card">
+        <div class="stat-icon-wrap bg-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
         <div class="stat-body">
           <span class="stat-label">Talabalar soni</span>
           <h3>{{revenue.totalStudents}}</h3>
@@ -68,7 +77,7 @@
     </div>
 
     <section class="data-card">
-      <div class="section-heading">
+      <div class="section-heading" style="padding:1.2rem 1.25rem 0">
         <div>
           <h3>Filiallar kesimida tushum</h3>
           <p>Har bir filialning tushum va qarzdorlik ko'rsatkichlari.</p>
@@ -76,6 +85,12 @@
       </div>
       <div class="table-wrapper">
         <table class="data-table compact-table">
+          <colgroup>
+            <col style="width:200px">
+            <col style="width:180px">
+            <col style="width:180px">
+            <col style="width:120px">
+          </colgroup>
           <thead>
             <tr>
               <th>Filial</th>
@@ -88,9 +103,9 @@
             {{#if revenue.byBranch.length}}
               {{#each revenue.byBranch}}
                 <tr>
-                  <td>{{branchName}}</td>
-                  <td class="text-right tabular-nums">{{formatUZS revenue}}</td>
-                  <td class="text-right tabular-nums {{debtClass debt}}">{{formatUZS debt}}</td>
+                  <td><strong>{{branchName}}</strong></td>
+                  <td class="text-right tabular-nums text-success"><strong>{{formatUZS revenue}}</strong></td>
+                  <td class="text-right tabular-nums {{debtClass debt}}"><strong>{{formatUZS debt}}</strong></td>
                   <td class="text-right tabular-nums">{{studentCount}}</td>
                 </tr>
               {{/each}}
