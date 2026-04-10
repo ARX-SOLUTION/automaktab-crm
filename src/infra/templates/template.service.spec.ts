@@ -70,6 +70,8 @@ describe('TemplateService', () => {
           initialPayment: 2000000,
           secondPayment: 1000000,
           thirdPayment: 500000,
+          paidTotal: 3500000,
+          paymentProgress: 58,
         },
       ],
       meta: {
@@ -104,6 +106,8 @@ describe('TemplateService', () => {
     expect(html).toContain("Jami natija");
     expect(html).toContain("Jami to'langan");
     expect(html).toContain("Jami qoldiq");
+    expect(html).toContain("To'lov ko'rinishi");
+    expect(html).toContain("To'lov tarixi");
     expect(html).toContain('soʻm');
   });
 

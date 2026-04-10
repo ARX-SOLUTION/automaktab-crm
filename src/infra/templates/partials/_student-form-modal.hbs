@@ -41,6 +41,15 @@
         Kurs narxi
         <input type="number" name="totalPrice" min="0" placeholder="6000000" required>
       </label>
+      <label>
+        To'lov turi
+        <select name="paymentMethod">
+          <option value="">Tanlanmagan</option>
+          <option value="cash">Naqd</option>
+          <option value="card">Karta</option>
+          <option value="transfer">O'tkazma</option>
+        </select>
+      </label>
 
       <div class="form-panel span-2" data-course-panel="express">
         <div class="form-panel-header">
@@ -88,8 +97,38 @@
             Shartnoma raqami
             <input type="text" name="contractNumber" placeholder="Masalan, C-201">
           </label>
+          <label>
+            Yakun sanasi
+            <input type="date" name="completionDate">
+          </label>
+          <label>
+            O83
+            <select name="o83">
+              <option value="">Tanlanmagan</option>
+              <option value="true">Ha</option>
+              <option value="false">Yo'q</option>
+            </select>
+          </label>
         </div>
       </div>
+
+      <label>
+        Hujjat topshirilganmi
+        <select name="hasDocument">
+          <option value="">Tanlanmagan</option>
+          <option value="true">Ha</option>
+          <option value="false">Yo'q</option>
+        </select>
+      </label>
+      <label>
+        Natija
+        <select name="result">
+          <option value="">Kutilmoqda</option>
+          <option value="pending">Kutilmoqda</option>
+          <option value="passed">O'tgan</option>
+          <option value="failed">Yiqilgan</option>
+        </select>
+      </label>
 
       <label class="span-2">
         Izoh

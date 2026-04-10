@@ -746,12 +746,17 @@ export class StudentsService {
     const initialPayment = student.installments?.initialPayment ?? student.amountPaid ?? 0;
     const secondPayment = student.installments?.secondPayment ?? 0;
     const thirdPayment = student.installments?.thirdPayment ?? 0;
+    const paidTotal = initialPayment + secondPayment + thirdPayment;
+    const paymentProgress =
+      student.totalPrice > 0 ? Math.min(100, Math.round((paidTotal / student.totalPrice) * 100)) : 100;
 
     return {
       ...student,
       initialPayment,
       secondPayment,
       thirdPayment,
+      paidTotal,
+      paymentProgress,
     };
   }
 

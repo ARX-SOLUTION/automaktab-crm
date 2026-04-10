@@ -40,6 +40,19 @@ export function registerFormatUzHelpers(handlebars: typeof Handlebars): void {
       year: 'numeric',
     }).format(date);
   });
+  handlebars.registerHelper('dateInputValue', (value: unknown) => {
+    if (!value) {
+      return '';
+    }
+
+    const date = value instanceof Date ? value : new Date(String(value));
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toISOString().slice(0, 10);
+  });
 
   handlebars.registerHelper('add', (left: unknown, right: unknown) => {
     return (toNumber(left) ?? 0) + (toNumber(right) ?? 0);

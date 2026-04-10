@@ -74,6 +74,53 @@ export function registerStudentHelpers(handlebars: typeof Handlebars): void {
     return labels[method] ?? method;
   });
 
+  handlebars.registerHelper('paymentStatusLabel', (status: string | null | undefined) => {
+    const labels: Record<string, string> = {
+      pending: 'To‘lov kutilmoqda',
+      partial: 'Qisman to‘langan',
+      paid: 'To‘liq yopilgan',
+      overdue: 'Muddati o‘tgan',
+      refunded: 'Qaytarilgan',
+    };
+
+    if (!status) {
+      return 'Holat yo‘q';
+    }
+
+    return labels[status] ?? status;
+  });
+
+  handlebars.registerHelper('paymentStatusClass', (status: string | null | undefined) => {
+    const classes: Record<string, string> = {
+      pending: 'status-pill warning',
+      partial: 'status-pill info',
+      paid: 'status-pill success',
+      overdue: 'status-pill danger',
+      refunded: 'status-pill neutral',
+    };
+
+    if (!status) {
+      return 'status-pill neutral';
+    }
+
+    return classes[status] ?? 'status-pill neutral';
+  });
+
+  handlebars.registerHelper('paymentFieldLabel', (field: string | null | undefined) => {
+    const labels: Record<string, string> = {
+      amountPaid: 'Asosiy to‘lov',
+      initialPayment: '1-to‘lov',
+      secondPayment: '2-to‘lov',
+      thirdPayment: '3-to‘lov',
+    };
+
+    if (!field) {
+      return 'To‘lov';
+    }
+
+    return labels[field] ?? field;
+  });
+
   handlebars.registerHelper('boolIcon', (value: boolean | null | undefined) => {
     const html = value
       ? '<span class="bool-indicator is-true" aria-label="Ha">✓</span>'
