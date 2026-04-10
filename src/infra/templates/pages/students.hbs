@@ -132,6 +132,41 @@
               <label>Ismi<input type="text" name="firstName" value="{{firstName}}" required></label>
               <label>Telefon<input type="text" name="phone" value="{{phone}}" required></label>
               <label>Kurs narxi<input type="number" name="totalPrice" value="{{totalPrice}}" min="0"></label>
+              <label>
+                To'lov turi
+                <select name="paymentMethod">
+                  <option value="" {{#unless paymentMethod}}selected{{/unless}}>Tanlanmagan</option>
+                  <option value="cash" {{ifEquals paymentMethod 'cash' 'selected'}}>Naqd</option>
+                  <option value="card" {{ifEquals paymentMethod 'card' 'selected'}}>Karta</option>
+                  <option value="transfer" {{ifEquals paymentMethod 'transfer' 'selected'}}>O'tkazma</option>
+                </select>
+              </label>
+              <label>
+                Talaba holati
+                <select name="status">
+                  <option value="" {{#unless status}}selected{{/unless}}>O'zgartirilmasin</option>
+                  <option value="active" {{ifEquals status 'active' 'selected'}}>Faol</option>
+                  <option value="completed" {{ifEquals status 'completed' 'selected'}}>Yakunlangan</option>
+                  <option value="dropped" {{ifEquals status 'dropped' 'selected'}}>Tashlab ketgan</option>
+                  <option value="suspended" {{ifEquals status 'suspended' 'selected'}}>To'xtatilgan</option>
+                </select>
+              </label>
+              <label>
+                Imtihon natijasi
+                <select name="result">
+                  <option value="" {{#unless result}}selected{{/unless}}>Kutilmoqda</option>
+                  <option value="pending" {{ifEquals result 'pending' 'selected'}}>Kutilmoqda</option>
+                  <option value="passed" {{ifEquals result 'passed' 'selected'}}>O'tgan</option>
+                  <option value="failed" {{ifEquals result 'failed' 'selected'}}>Yiqilgan</option>
+                </select>
+              </label>
+              <label>
+                Hujjat
+                <select name="hasDocument">
+                  <option value="true" {{ifEquals hasDocument true 'selected'}}>Bor</option>
+                  <option value="false" {{ifEquals hasDocument false 'selected'}}>Yo'q</option>
+                </select>
+              </label>
               {{#ifEquals courseType 'standard'}}
                 <label>
                   Guruh
@@ -143,8 +178,16 @@
                   </select>
                 </label>
                 <label>Shartnoma<input type="text" name="contractNumber" value="{{contractNumber}}"></label>
+                <label>Yakun sanasi<input type="date" name="completionDate" value="{{dateInputValue completionDate}}"></label>
+                <label>
+                  O83
+                  <select name="o83">
+                    <option value="true" {{ifEquals o83 true 'selected'}}>Ha</option>
+                    <option value="false" {{ifEquals o83 false 'selected'}}>Yo'q</option>
+                  </select>
+                </label>
               {{/ifEquals}}
-                <label class="span-2">Izoh<textarea name="notes" rows="3">{{notes}}</textarea></label>
+              <label class="span-2">Izoh<textarea name="notes" rows="3">{{notes}}</textarea></label>
               <button class="btn-primary span-2" type="submit" data-loading-text="Saqlanmoqda...">Ma'lumotlarni saqlash</button>
             </form>
             <form action="/app/students/{{id}}/payment" method="POST" class="form-grid">
@@ -157,7 +200,61 @@
               {{/ifEquals}}
               <button class="btn-secondary span-2" type="submit" data-loading-text="Yangilanmoqda...">To'lovni yangilash</button>
             </form>
-            <div class="danger-form">
+            <section class="form-panel payment-overview-panel span-2">
+              <div class="payment-overview-head">
+                <div>
+                  <strong>To'lov ko'rinishi</strong>
+                  <span>Joriy balans va oxirgi o'zgarishlarni shu joyning o'zida kuzating.</span>
+                </div>
+                <span class="{{paymentStatusClass paymentStatus}}">{{paymentStatusLabel paymentStatus}}</span>
+              </div>
+              <div class="payment-summary-grid">
+                <article class="payment-summary-card">
+                  <span>Jami to'langan</span>
+                  <strong>{{formatUZS paidTotal}}</strong>
+                </article>
+                <article class="payment-summary-card">
+                  <span>Qoldiq</span>
+                  <strong>{{formatUZS debt}}</strong>
+                </article>
+                <article class="payment-summary-card">
+                  <span>Kurs narxi</span>
+                  <strong>{{formatUZS totalPrice}}</strong>
+                </article>
+                <article class="payment-summary-card">
+                  <span>To'lov usuli</span>
+                  <strong>{{paymentMethodLabel paymentMethod}}</strong>
+                </article>
+              </div>
+              <div class="progress-meta">
+                <span>{{paymentProgress}}% yopilgan</span>
+                <span>Oxirgi yangilanish: {{formatDateUZ updatedAt}}</span>
+              </div>
+              <div class="progress-bar-wrap" aria-hidden="true">
+                <div class="progress-bar-fill" style="width: {{paymentProgress}}%;"></div>
+              </div>
+              <div
+                class="payment-history-card"
+                data-payment-history
+                data-student-id="{{id}}"
+                data-payment-history-url="/students/{{id}}/payment-history"
+              >
+                <div class="payment-history-header">
+                  <div>
+                    <strong>To'lov tarixi</strong>
+                    <span>Modal ochilganda oxirgi to'lov o'zgarishlari avtomatik yuklanadi.</span>
+                  </div>
+                  <button class="btn-ghost btn-history-refresh" type="button" data-payment-history-refresh>Yangilash</button>
+                </div>
+                <div class="payment-history-list" data-payment-history-content>
+                  <div class="payment-history-placeholder">
+                    <strong>Tarix tayyor</strong>
+                    <span>Bu modalni ochganingizda to'lov loglari shu yerda ko'rinadi.</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <div class="danger-form span-2">
               <button
                 class="btn-danger"
                 type="button"

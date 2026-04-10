@@ -100,6 +100,14 @@ function openModalById(id) {
 
   modal.classList.add('is-open');
   document.body.classList.add('has-modal-open');
+  document.dispatchEvent(
+    new CustomEvent('app:modal-open', {
+      detail: {
+        modalId: id,
+        modal,
+      },
+    }),
+  );
 
   window.requestAnimationFrame(() => {
     const focusable = modal.querySelector(
@@ -118,6 +126,14 @@ function closeModal(modal) {
   }
 
   modal.classList.remove('is-open');
+  document.dispatchEvent(
+    new CustomEvent('app:modal-close', {
+      detail: {
+        modalId: modal.id,
+        modal,
+      },
+    }),
+  );
 
   if (!document.querySelector('.modal.is-open')) {
     document.body.classList.remove('has-modal-open');

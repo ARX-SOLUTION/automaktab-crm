@@ -49,4 +49,26 @@ export function registerUiHelpers(handlebars: typeof Handlebars): void {
       .map((w) => w[0].toUpperCase())
       .join('');
   });
+
+  handlebars.registerHelper(
+    'queryString',
+    (currentFilters: Record<string, unknown> | undefined, options: Handlebars.HelperOptions) => {
+      const params = new URLSearchParams();
+      const merged = {
+        ...(currentFilters && typeof currentFilters === 'object' ? currentFilters : {}),
+        ...options.hash,
+      };
+
+      Object.entries(merged).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') {
+          return;
+        }
+
+        params.set(key, String(value));
+      });
+
+      const query = params.toString();
+      return query ? `?${query}` : '';
+    },
+  );
 }

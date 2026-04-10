@@ -85,6 +85,8 @@ export interface StudentRowContext extends Omit<StudentResponse, 'installments' 
   initialPayment: number;
   secondPayment: number;
   thirdPayment: number;
+  paidTotal: number;
+  paymentProgress: number;
 }
 
 export interface StudentsPageContext extends PageMetaContext {
