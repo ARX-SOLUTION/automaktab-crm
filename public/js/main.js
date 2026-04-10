@@ -221,5 +221,24 @@ document.addEventListener('keydown', (event) => {
   });
 });
 
-bindGlobalForms();
-enhanceFlashToasts();
+(function initSearchDebounce() {
+  var debounceTimer;
+  document.querySelectorAll('.filters-bar input[type="text"], .filters-bar input[type="search"]').forEach(function (input) {
+    input.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function () {
+        var form = input.closest('form');
+        if (form) form.requestSubmit();
+      }, 400);
+    });
+  });
+})();
+
+document.querySelectorAll('form[method="POST"] button[type="submit"]').forEach(function (btn) {
+  var form = btn.closest('form');
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+  });
+});

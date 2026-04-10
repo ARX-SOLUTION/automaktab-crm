@@ -8,7 +8,10 @@
       {{/if}}
     </div>
     {{#if user.branchName}}
-      <span class="branch-chip">Filial: {{user.branchName}}</span>
+      <span class="branch-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        {{user.branchName}}
+      </span>
     {{/if}}
   </div>
   <div class="top-bar-right">
@@ -16,7 +19,7 @@
       {{#if user.isOwner}}Owner{{else}}Manager{{/if}}
     </span>
     <div class="user-info">
-      <span class="user-avatar">{{initials user.fullName}}</span>
+      <span class="user-avatar">{{userInitials user.fullName}}</span>
       <span class="user-copy">
         <strong>{{user.fullName}}</strong>
         <small>{{#if user.isOwner}}Tizim egasi{{else}}Filial operatori{{/if}}</small>

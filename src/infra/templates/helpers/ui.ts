@@ -40,25 +40,13 @@ export function registerUiHelpers(handlebars: typeof Handlebars): void {
       .join('');
   });
 
-  handlebars.registerHelper(
-    'queryString',
-    (params: Record<string, unknown> | undefined, options: Handlebars.HelperOptions) => {
-      const searchParams = new URLSearchParams();
-      const merged = {
-        ...(params ?? {}),
-        ...options.hash,
-      };
-
-      for (const [key, rawValue] of Object.entries(merged)) {
-        if (rawValue === undefined || rawValue === null || rawValue === '') {
-          continue;
-        }
-
-        searchParams.set(key, String(rawValue));
-      }
-
-      const query = searchParams.toString();
-      return query ? `?${query}` : '';
-    },
-  );
+  handlebars.registerHelper('userInitials', (fullName: unknown) => {
+    if (typeof fullName !== 'string' || !fullName.trim()) return '??';
+    return fullName
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0].toUpperCase())
+      .join('');
+  });
 }
