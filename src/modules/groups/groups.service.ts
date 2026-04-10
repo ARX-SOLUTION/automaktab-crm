@@ -61,6 +61,14 @@ export class GroupsService {
       where: {
         isActive: true,
         ...(branchId ? { branchId } : {}),
+        ...(query.search
+          ? {
+              name: {
+                contains: query.search,
+                mode: 'insensitive',
+              },
+            }
+          : {}),
       },
       orderBy: [{ branch: { name: 'asc' } }, { name: 'asc' }],
       include: this.groupInclude,

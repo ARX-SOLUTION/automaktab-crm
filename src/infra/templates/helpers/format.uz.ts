@@ -23,6 +23,24 @@ export function formatUZS(value: unknown): string {
 
 export function registerFormatUzHelpers(handlebars: typeof Handlebars): void {
   handlebars.registerHelper('formatUZS', (value: unknown) => formatUZS(value));
+  handlebars.registerHelper('formatDateUZ', (value: unknown) => {
+    if (!value) {
+      return '—';
+    }
+
+    const date = value instanceof Date ? value : new Date(String(value));
+
+    if (Number.isNaN(date.getTime())) {
+      return '—';
+    }
+
+    return new Intl.DateTimeFormat('uz-UZ', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
+  });
+
   handlebars.registerHelper('add', (left: unknown, right: unknown) => {
     return (toNumber(left) ?? 0) + (toNumber(right) ?? 0);
   });

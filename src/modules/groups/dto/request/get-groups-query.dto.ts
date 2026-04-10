@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 import { toOptionalText } from '@common/dto';
 
@@ -10,4 +10,10 @@ export class GetGroupsQueryDto {
   @Transform(toOptionalText)
   @IsUUID()
   branchId?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(toOptionalText)
+  @IsString()
+  search?: string;
 }

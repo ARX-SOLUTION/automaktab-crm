@@ -3,6 +3,9 @@
     <div class="top-bar-brand">
       <span class="top-bar-kicker">Auto Test CRM</span>
       <strong>{{pageTitle}}</strong>
+      {{#if pageDescription}}
+        <small class="top-bar-description">{{pageDescription}}</small>
+      {{/if}}
     </div>
     {{#if user.branchName}}
       <span class="branch-chip">
@@ -12,6 +15,9 @@
     {{/if}}
   </div>
   <div class="top-bar-right">
+    <span class="user-role-badge {{user.role}}">
+      {{#if user.isOwner}}Owner{{else}}Manager{{/if}}
+    </span>
     <div class="user-info">
       <span class="user-avatar">{{userInitials user.fullName}}</span>
       <span class="user-copy">

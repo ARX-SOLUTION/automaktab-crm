@@ -16,13 +16,14 @@
 <body class="app-layout">
   {{> sidebar currentPage=currentPage user=user branchCount=branchCount}}
   <main class="main-content">
-    {{> header pageTitle=pageTitle user=user}}
+    {{> header pageTitle=pageTitle pageDescription=pageDescription user=user}}
     <div class="page-content">
+      <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
       {{#if flash.error}}
-        <div class="alert alert-error">{{flash.error}}</div>
+        <div class="alert alert-error" data-flash-toast="error">{{flash.error}}</div>
       {{/if}}
       {{#if flash.success}}
-        <div class="alert alert-success">{{flash.success}}</div>
+        <div class="alert alert-success" data-flash-toast="success">{{flash.success}}</div>
       {{/if}}
       {{> @partial-block }}
     </div>

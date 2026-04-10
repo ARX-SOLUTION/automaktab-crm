@@ -49,6 +49,7 @@ export class UsersService {
         deletedAt: null,
         role: Role.manager,
         ...(query.branchId ? { branchId: query.branchId } : {}),
+        ...(query.status ? { isActive: query.status === 'active' } : {}),
         ...(query.search
           ? {
               OR: [

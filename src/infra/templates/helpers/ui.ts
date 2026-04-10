@@ -27,16 +27,17 @@ export function registerUiHelpers(handlebars: typeof Handlebars): void {
     return left !== right ? options.fn(this) : options.inverse(this);
   });
 
-  handlebars.registerHelper('multiply', (a: unknown, b: unknown) => {
-    const numA = Number(a);
-    const numB = Number(b);
-    return Number.isFinite(numA) && Number.isFinite(numB) ? numA * numB : 0;
-  });
+  handlebars.registerHelper('initials', (value?: string) => {
+    if (!value) {
+      return 'AT';
+    }
 
-  handlebars.registerHelper('divide', (a: unknown, b: unknown) => {
-    const numA = Number(a);
-    const numB = Number(b);
-    return Number.isFinite(numA) && Number.isFinite(numB) && numB !== 0 ? numA / numB : 0;
+    return value
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('');
   });
 
   handlebars.registerHelper('userInitials', (fullName: unknown) => {

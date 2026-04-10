@@ -94,13 +94,24 @@
             <td class="actions-cell">
               <button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-{{id}}" title="Tahrirlash">Tahrir</button>
               {{#if ../isOwner}}
-                <button class="btn-icon btn-delete" type="button" data-delete-id="{{id}}" title="O'chirish" data-modal-open="delete-modal">O'chir</button>
+                <button
+                  class="btn-icon btn-delete"
+                  type="button"
+                  title="O'chirish"
+                  data-confirm-action="/app/students/{{id}}/delete"
+                  data-confirm-title="Talabani o'chirish"
+                  data-confirm-description="{{lastName}} {{firstName}} yozuvini tizimdan olib tashlamoqchimisiz?"
+                  data-confirm-button="Ha, o'chirish"
+                  data-modal-open="delete-modal"
+                >
+                  O'chir
+                </button>
               {{/if}}
             </td>
           </tr>
         {{/each}}
       {{else}}
-        <tr>
+        <tr class="table-empty-row">
           <td colspan="19">{{> empty-state message="Hech qanday talaba topilmadi" icon="—" }}</td>
         </tr>
       {{/if}}

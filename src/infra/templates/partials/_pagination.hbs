@@ -1,19 +1,19 @@
 <nav class="pagination">
-  <div class="pagination-info">
-    {{#if meta.total}}
-      <strong>{{add (add (add (add meta.page -1) 0) 0) 0}}</strong>–<strong>{{#if meta.hasNextPage}}{{add (add (add meta.page -1) 0) meta.limit}}{{else}}{{meta.total}}{{/if}}</strong> / <strong>{{meta.total}}</strong> ta
-    {{else}}
-      0 ta natija
-    {{/if}}
+  <div class="pagination-summary">
+    <strong>{{meta.page}} / {{meta.totalPages}}</strong>
+    <span>{{meta.total}} ta yozuvdan sahifa ko'rinishi</span>
   </div>
-  <div class="pagination-nav">
+  <div class="pagination-actions">
     {{#if meta.hasPreviousPage}}
-      <a class="pagination-link" href="?page={{add meta.page -1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">&#8249;</a>
+      <a class="pagination-link" href="{{queryString filters page=(add meta.page -1) limit=meta.limit}}">
+        Oldingi
+      </a>
     {{/if}}
-    <span class="pagination-page active">{{meta.page}}</span>
-    <span class="pagination-ellipsis">/ {{meta.totalPages}}</span>
+    <span class="pagination-status">{{meta.limit}} ta yozuv / sahifa</span>
     {{#if meta.hasNextPage}}
-      <a class="pagination-link" href="?page={{add meta.page 1}}&limit={{meta.limit}}{{#if filters.branchId}}&branchId={{filters.branchId}}{{/if}}{{#if filters.status}}&status={{filters.status}}{{/if}}{{#if filters.search}}&search={{filters.search}}{{/if}}{{#if filters.courseType}}&courseType={{filters.courseType}}{{/if}}">&#8250;</a>
+      <a class="pagination-link" href="{{queryString filters page=(add meta.page 1) limit=meta.limit}}">
+        Keyingi
+      </a>
     {{/if}}
   </div>
 </nav>
