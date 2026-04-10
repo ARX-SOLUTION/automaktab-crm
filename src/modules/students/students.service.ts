@@ -15,6 +15,7 @@ import {
   PaymentStatus,
   Prisma,
   Role,
+  StudentStatus,
 } from '@prisma/client';
 
 import {
@@ -167,6 +168,7 @@ export class StudentsService {
     query: Omit<SsrStudentQuery, 'page' | 'limit'> = {},
   ): Promise<{
     totalStudents: number;
+    activeStudents: number;
     paidCount: number;
     debtCount: number;
     totalPaid: number;
@@ -192,6 +194,7 @@ export class StudentsService {
       select: {
         totalPrice: true,
         debt: true,
+        status: true,
       },
     });
 
@@ -204,6 +207,9 @@ export class StudentsService {
         acc.totalDebt += debt;
         acc.branchDebt += debt;
         acc.totalPaid += totalPrice - debt;
+        if (student.status === StudentStatus.active) {
+          acc.activeStudents += 1;
+        }
 
         if (debt > 0) {
           acc.debtCount += 1;
@@ -215,6 +221,7 @@ export class StudentsService {
       },
       {
         totalStudents: 0,
+        activeStudents: 0,
         paidCount: 0,
         debtCount: 0,
         totalPaid: 0,

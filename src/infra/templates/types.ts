@@ -56,6 +56,7 @@ export interface LoginPageContext extends PageMetaContext {
 
 export interface DashboardStatsContext {
   totalStudents: number;
+  activeStudents: number;
   paidCount: number;
   debtCount: number;
   totalPaid: number;
@@ -70,6 +71,13 @@ export interface DashboardPageContext extends PageMetaContext {
   branchNames: string;
   filters: PageFilterContext;
   stats: DashboardStatsContext;
+  branchBreakdown?: Array<{
+    branchId: string;
+    branchName: string;
+    revenue: number;
+    debt: number;
+    studentCount: number;
+  }>;
 }
 
 export interface StudentsSummaryContext {
@@ -100,9 +108,19 @@ export interface StudentsPageContext extends PageMetaContext {
   stats: Pick<DashboardStatsContext, 'paidCount' | 'debtCount'>;
 }
 
+export interface BranchCardContext extends BranchResponse {
+  managerCount: number;
+}
+
 export interface BranchesPageContext extends PageMetaContext {
   user: TemplateUserContext;
-  branches: BranchResponse[];
+  branches: BranchCardContext[];
+  filters: PageFilterContext;
+  summary: {
+    total: number;
+    active: number;
+    inactive: number;
+  };
 }
 
 export interface ManagersPageContext extends PageMetaContext {
@@ -110,6 +128,11 @@ export interface ManagersPageContext extends PageMetaContext {
   managers: UserResponse[];
   branches: Array<Pick<BranchResponse, 'id' | 'name'>>;
   filters: PageFilterContext;
+  summary: {
+    total: number;
+    active: number;
+    inactive: number;
+  };
 }
 
 export interface ReportsPageContext extends PageMetaContext {

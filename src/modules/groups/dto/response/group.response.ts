@@ -9,6 +9,11 @@ type GroupEntity = Prisma.GroupGetPayload<{
         students: true;
       };
     };
+    students: {
+      select: {
+        id: true;
+      };
+    };
   };
 }>;
 
@@ -32,6 +37,9 @@ export class GroupResponse {
   totalStudents: number;
 
   @ApiProperty()
+  activeStudents: number;
+
+  @ApiProperty()
   createdAt: Date;
 
   @ApiProperty()
@@ -45,6 +53,7 @@ export class GroupResponse {
       branchName: group.branch.name,
       isActive: group.isActive,
       totalStudents: group._count.students,
+      activeStudents: group.students.length,
       createdAt: group.createdAt,
       updatedAt: group.updatedAt,
     };

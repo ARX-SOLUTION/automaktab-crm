@@ -1,19 +1,37 @@
 <nav class="pagination">
   <div class="pagination-summary">
-    <strong>{{meta.page}} / {{meta.totalPages}}</strong>
-    <span>{{meta.total}} ta yozuvdan sahifa ko'rinishi</span>
+    <strong>{{pageStart meta.page meta.limit meta.total}}-{{pageEnd meta.page meta.limit meta.total}}</strong>
+    <span><strong>{{meta.total}}</strong> ta yozuvdan joriy sahifa ko'rinishi</span>
   </div>
   <div class="pagination-actions">
     {{#if meta.hasPreviousPage}}
-      <a class="pagination-link" href="{{queryString filters page=(add meta.page -1) limit=meta.limit}}">
-        Oldingi
+      <a class="pagination-link pagination-link-arrow" href="{{queryString filters page=(add meta.page -1) limit=meta.limit}}">
+        ‹
       </a>
+    {{else}}
+      <span class="pagination-link pagination-link-arrow is-disabled">‹</span>
     {{/if}}
-    <span class="pagination-status">{{meta.limit}} ta yozuv / sahifa</span>
+
+    {{#each (paginationPages meta.page meta.totalPages)}}
+      {{#ifEquals type 'ellipsis'}}
+        <span class="pagination-ellipsis">…</span>
+      {{else}}
+        <a
+          class="pagination-link {{#if current}}is-active{{/if}}"
+          href="{{queryString ../filters page=value limit=../meta.limit}}"
+        >
+          {{value}}
+        </a>
+      {{/ifEquals}}
+    {{/each}}
+
+    <span class="pagination-status">{{meta.limit}} ta / sahifa</span>
     {{#if meta.hasNextPage}}
-      <a class="pagination-link" href="{{queryString filters page=(add meta.page 1) limit=meta.limit}}">
-        Keyingi
+      <a class="pagination-link pagination-link-arrow" href="{{queryString filters page=(add meta.page 1) limit=meta.limit}}">
+        ›
       </a>
+    {{else}}
+      <span class="pagination-link pagination-link-arrow is-disabled">›</span>
     {{/if}}
   </div>
 </nav>

@@ -1,144 +1,334 @@
 <div class="table-shell">
   <div class="table-wrapper">
-    <table class="students-table data-table">
-      <colgroup>
-        <col class="col-index">
-        <col class="col-name">
-        <col class="col-phone">
-        <col class="col-branch">
-        <col class="col-course">
-        <col class="col-money">
-        <col class="col-money">
-        <col class="col-money">
-        <col class="col-money">
-        <col class="col-money">
-        <col class="col-method">
-        <col class="col-bool">
-        <col class="col-bool">
-        <col class="col-status">
-        <col class="col-status">
-        <col class="col-meta">
-        <col class="col-operator">
-        <col class="col-notes">
-        <col class="col-actions">
-      </colgroup>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>F.I.SH</th>
-        <th>Telefon</th>
-        <th>Filial</th>
-        <th>Kurs turi</th>
-        <th>Kurs narxi</th>
-        <th>1-to'lov</th>
-        <th>2-to'lov</th>
-        <th>3-to'lov</th>
-        <th>Qoldiq</th>
-        <th>To'lov turi</th>
-        <th>Hujjat</th>
-        <th>O83</th>
-        <th>Holat</th>
-        <th>Natija</th>
-        <th>Guruh / shartnoma</th>
-        <th>Operator</th>
-        <th>Izoh</th>
-        <th>Amallar</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#if students.length}}
-        {{#each students}}
-          <tr data-id="{{id}}" data-course-type="{{courseType}}">
-            <td>{{add @index 1}}</td>
-            <td class="cell-primary" title="{{lastName}} {{firstName}}">
-              <div class="cell-stack">
-                <strong>{{lastName}} {{firstName}}</strong>
-                <span class="cell-muted">{{id}}</span>
-              </div>
-            </td>
-            <td title="{{phone}}">{{phone}}</td>
-            <td title="{{branch.name}}">{{branch.name}}</td>
-            <td><span class="badge badge-course {{courseType}}">{{courseTypeLabel courseType}}</span></td>
-            <td class="text-right tabular-nums">{{formatUZS totalPrice}}</td>
-            <td class="text-right tabular-nums">{{formatUZS initialPayment}}</td>
-            <td class="text-right tabular-nums">{{formatUZS secondPayment}}</td>
-            <td class="text-right tabular-nums">{{formatUZS thirdPayment}}</td>
-            <td class="text-right tabular-nums {{debtClass debt}}">
-              <strong>{{#if debt}}{{formatUZS debt}}{{else}}To'langan{{/if}}</strong>
-            </td>
-            <td>{{paymentMethodLabel paymentMethod}}</td>
-            <td class="text-center">{{{boolIcon hasDocument}}}</td>
-            <td class="text-center">
-              {{#ifEquals courseType 'standard'}}
-                {{{boolIcon o83}}}
-              {{else}}
-                <span class="cell-muted">—</span>
-              {{/ifEquals}}
-            </td>
-            <td><span class="{{studentStatusClass status}}">{{studentStatusLabel status}}</span></td>
-            <td><span class="{{studentResultClass result}}">{{studentResultLabel result}}</span></td>
-            <td title="{{#if group}}{{group.name}}{{/if}}{{#if contractNumber}} {{contractNumber}}{{/if}}">
-              <div class="cell-stack">
-                <strong>{{#if group}}{{group.name}}{{else}}—{{/if}}</strong>
-                <span class="cell-muted">{{#if contractNumber}}{{contractNumber}}{{else}}Shartnoma yo'q{{/if}}</span>
-              </div>
-            </td>
-            <td title="{{registrar.fullName}}">{{registrar.fullName}}</td>
-            <td title="{{#if notes}}{{notes}}{{else}}Izoh yo'q{{/if}}">
-              {{#if notes}}
-                <span class="cell-truncate">{{notes}}</span>
-              {{else}}
-                <span class="cell-muted">—</span>
-              {{/if}}
-            </td>
-            <td class="actions-cell">
-              <button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-{{id}}" title="Tahrirlash">Tahrir</button>
-              {{#if ../isOwner}}
-                <button
-                  class="btn-icon btn-delete"
-                  type="button"
-                  title="O'chirish"
-                  data-confirm-action="/app/students/{{id}}/delete"
-                  data-confirm-title="Talabani o'chirish"
-                  data-confirm-description="{{lastName}} {{firstName}} yozuvini tizimdan olib tashlamoqchimisiz?"
-                  data-confirm-button="Ha, o'chirish"
-                  data-modal-open="delete-modal"
-                >
-                  O'chir
-                </button>
-              {{/if}}
-            </td>
+    {{#ifEquals filters.courseType 'express'}}
+      <table class="students-table students-table--express data-table">
+        <colgroup>
+          <col class="col-index">
+          <col class="col-first">
+          <col class="col-last">
+          <col class="col-phone">
+          {{#if isOwner}}<col class="col-branch">{{/if}}
+          <col class="col-money">
+          <col class="col-money">
+          <col class="col-money">
+          <col class="col-method">
+          <col class="col-bool">
+          <col class="col-status">
+          <col class="col-status">
+          <col class="col-operator">
+          <col class="col-notes">
+          <col class="col-actions">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Familya</th>
+            <th>Ismi</th>
+            <th>Telefon</th>
+            {{#if isOwner}}<th>Filial</th>{{/if}}
+            <th class="text-right">Kurs narxi</th>
+            <th class="text-right">To'lov</th>
+            <th class="text-right">Qarzdorlik</th>
+            <th>To'lov turi</th>
+            <th class="text-center">Dakument</th>
+            <th>Holat</th>
+            <th>Natija</th>
+            <th>Operator</th>
+            <th>Izoh</th>
+            <th>Amallar</th>
           </tr>
-        {{/each}}
+        </thead>
+        <tbody>
+          {{#if students.length}}
+            {{#each students}}
+              <tr data-id="{{id}}" data-course-type="{{courseType}}">
+                <td>{{add @index 1}}</td>
+                <td title="{{lastName}}"><strong>{{lastName}}</strong></td>
+                <td title="{{firstName}}"><strong>{{firstName}}</strong></td>
+                <td title="{{phone}}">{{phone}}</td>
+                {{#if ../isOwner}}<td><span class="branch-badge">{{branch.name}}</span></td>{{/if}}
+                <td class="text-right tabular-nums">{{formatUZS totalPrice}}</td>
+                <td class="text-right tabular-nums">{{formatUZS initialPayment}}</td>
+                <td class="text-right tabular-nums {{debtClass debt}}">
+                  <strong>{{#if debt}}{{formatUZS debt}}{{else}}✓ To'langan{{/if}}</strong>
+                </td>
+                <td>{{paymentMethodLabel paymentMethod}}</td>
+                <td class="text-center">{{{boolIcon hasDocument}}}</td>
+                <td><span class="{{studentStatusClass status}}">{{studentStatusLabel status}}</span></td>
+                <td><span class="{{studentResultClass result}}">{{studentResultLabel result}}</span></td>
+                <td title="{{registrar.fullName}}">{{registrar.fullName}}</td>
+                <td title="{{#if notes}}{{notes}}{{else}}Izoh yo'q{{/if}}">
+                  {{#if notes}}
+                    <span class="cell-truncate">{{notes}}</span>
+                  {{else}}
+                    <span class="cell-muted">—</span>
+                  {{/if}}
+                </td>
+                <td class="actions-cell">
+                  <button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-{{id}}">Tahrir</button>
+                  <button class="btn-icon" type="button" data-modal-open="student-edit-{{id}}">To'lov</button>
+                  {{#if ../isOwner}}
+                    <button
+                      class="btn-icon btn-delete"
+                      type="button"
+                      data-confirm-action="/app/students/{{id}}/delete"
+                      data-confirm-title="Talabani o'chirish"
+                      data-confirm-description="{{lastName}} {{firstName}} yozuvini tizimdan olib tashlamoqchimisiz?"
+                      data-confirm-button="Ha, o'chirish"
+                      data-modal-open="delete-modal"
+                    >
+                      O'chir
+                    </button>
+                  {{/if}}
+                </td>
+              </tr>
+            {{/each}}
+          {{else}}
+            <tr class="table-empty-row">
+              <td colspan="{{#if isOwner}}15{{else}}14{{/if}}">{{> empty-state message="Tanlangan filter bo'yicha tezkor kurs talabalari topilmadi" icon="—" }}</td>
+            </tr>
+          {{/if}}
+        </tbody>
+        {{#if students.length}}
+          <tfoot>
+            <tr class="summary-row jami-natija">
+              <td colspan="{{#if isOwner}}6{{else}}5{{/if}}"><strong>Jami</strong></td>
+              <td class="text-right">{{formatUZS summary.totalPaid}}</td>
+              <td class="text-right">{{formatUZS summary.totalDebt}}</td>
+              <td colspan="7"></td>
+            </tr>
+          </tfoot>
+        {{/if}}
+      </table>
+    {{else}}
+      {{#ifEquals filters.courseType 'standard'}}
+        <table class="students-table students-table--standard data-table">
+          <colgroup>
+            <col class="col-index">
+            <col class="col-first">
+            <col class="col-last">
+            <col class="col-phone">
+            {{#if isOwner}}<col class="col-branch">{{/if}}
+            <col class="col-money">
+            <col class="col-money">
+            <col class="col-money">
+            <col class="col-money">
+            <col class="col-money">
+            <col class="col-method">
+            <col class="col-name">
+            <col class="col-date">
+            <col class="col-bool">
+            <col class="col-contract">
+            <col class="col-bool">
+            <col class="col-status">
+            <col class="col-status">
+            <col class="col-operator">
+            <col class="col-notes">
+            <col class="col-actions">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Familya</th>
+              <th>Ismi</th>
+              <th>Telefon</th>
+              {{#if isOwner}}<th>Filial</th>{{/if}}
+              <th class="text-right">Kurs narxi</th>
+              <th class="text-right">Boshlang'ich to'lov</th>
+              <th class="text-right">2-to'lov</th>
+              <th class="text-right">3-to'lov</th>
+              <th class="text-right">Qarzdorlik</th>
+              <th>To'lov turi</th>
+              <th>Guruh</th>
+              <th>Tugatish sanasi</th>
+              <th class="text-center">O83</th>
+              <th>Shartnoma</th>
+              <th class="text-center">Dakument</th>
+              <th>Holat</th>
+              <th>Natija</th>
+              <th>Operator</th>
+              <th>Izoh</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if students.length}}
+              {{#each students}}
+                <tr data-id="{{id}}" data-course-type="{{courseType}}">
+                  <td>{{add @index 1}}</td>
+                  <td title="{{lastName}}"><strong>{{lastName}}</strong></td>
+                  <td title="{{firstName}}"><strong>{{firstName}}</strong></td>
+                  <td title="{{phone}}">{{phone}}</td>
+                  {{#if ../isOwner}}<td><span class="branch-badge">{{branch.name}}</span></td>{{/if}}
+                  <td class="text-right tabular-nums">{{formatUZS totalPrice}}</td>
+                  <td class="text-right tabular-nums">{{formatUZS initialPayment}}</td>
+                  <td class="text-right tabular-nums">{{formatUZS secondPayment}}</td>
+                  <td class="text-right tabular-nums">{{formatUZS thirdPayment}}</td>
+                  <td class="text-right tabular-nums {{debtClass debt}}">
+                    <strong>{{#if debt}}{{formatUZS debt}}{{else}}✓ To'langan{{/if}}</strong>
+                  </td>
+                  <td>{{paymentMethodLabel paymentMethod}}</td>
+                  <td>
+                    {{#if group}}
+                      <span class="badge badge-course standard">{{group.name}}</span>
+                    {{else}}
+                      <span class="cell-muted">—</span>
+                    {{/if}}
+                  </td>
+                  <td>{{formatDateUZ completionDate}}</td>
+                  <td class="text-center">{{{boolIcon o83}}}</td>
+                  <td title="{{#if contractNumber}}{{contractNumber}}{{else}}Shartnoma yo'q{{/if}}">
+                    {{#if contractNumber}}
+                      <span class="cell-code">{{contractNumber}}</span>
+                    {{else}}
+                      <span class="cell-muted">—</span>
+                    {{/if}}
+                  </td>
+                  <td class="text-center">{{{boolIcon hasDocument}}}</td>
+                  <td><span class="{{studentStatusClass status}}">{{studentStatusLabel status}}</span></td>
+                  <td><span class="{{studentResultClass result}}">{{studentResultLabel result}}</span></td>
+                  <td title="{{registrar.fullName}}">{{registrar.fullName}}</td>
+                  <td title="{{#if notes}}{{notes}}{{else}}Izoh yo'q{{/if}}">
+                    {{#if notes}}
+                      <span class="cell-truncate">{{notes}}</span>
+                    {{else}}
+                      <span class="cell-muted">—</span>
+                    {{/if}}
+                  </td>
+                  <td class="actions-cell">
+                    <button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-{{id}}">Tahrir</button>
+                    <button class="btn-icon" type="button" data-modal-open="student-edit-{{id}}">To'lov</button>
+                    {{#if ../isOwner}}
+                      <button
+                        class="btn-icon btn-delete"
+                        type="button"
+                        data-confirm-action="/app/students/{{id}}/delete"
+                        data-confirm-title="Talabani o'chirish"
+                        data-confirm-description="{{lastName}} {{firstName}} yozuvini tizimdan olib tashlamoqchimisiz?"
+                        data-confirm-button="Ha, o'chirish"
+                        data-modal-open="delete-modal"
+                      >
+                        O'chir
+                      </button>
+                    {{/if}}
+                  </td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr class="table-empty-row">
+                <td colspan="{{#if isOwner}}21{{else}}20{{/if}}">{{> empty-state message="Tanlangan filter bo'yicha to'liq kurs talabalari topilmadi" icon="—" }}</td>
+              </tr>
+            {{/if}}
+          </tbody>
+          {{#if students.length}}
+            <tfoot>
+              <tr class="summary-row jami-natija">
+                <td colspan="{{#if isOwner}}6{{else}}5{{/if}}"><strong>Jami natija</strong></td>
+                <td class="text-right">{{formatUZS summary.totalInitial}}</td>
+                <td class="text-right">{{formatUZS summary.totalSecond}}</td>
+                <td class="text-right">{{formatUZS summary.totalThird}}</td>
+                <td class="text-right">{{formatUZS summary.totalDebt}}</td>
+                <td colspan="11"></td>
+              </tr>
+              <tr class="summary-row paid">
+                <td colspan="{{#if isOwner}}6{{else}}5{{/if}}"><strong>Jami to'langan</strong></td>
+                <td colspan="4" class="text-right text-success"><strong>{{formatUZS summary.totalPaid}}</strong></td>
+                <td colspan="11"></td>
+              </tr>
+            </tfoot>
+          {{/if}}
+        </table>
       {{else}}
-        <tr class="table-empty-row">
-          <td colspan="19">{{> empty-state message="Hech qanday talaba topilmadi" icon="—" }}</td>
-        </tr>
-      {{/if}}
-    </tbody>
-    {{#if students.length}}
-      <tfoot>
-        <tr class="summary-row jami-natija">
-          <td colspan="5"><strong>Jami natija</strong></td>
-          <td class="text-right">{{formatUZS summary.totalPrices}}</td>
-          <td class="text-right">{{formatUZS summary.totalInitial}}</td>
-          <td class="text-right">{{formatUZS summary.totalSecond}}</td>
-          <td class="text-right">{{formatUZS summary.totalThird}}</td>
-          <td class="text-right">{{formatUZS summary.totalDebt}}</td>
-          <td colspan="9"></td>
-        </tr>
-        <tr class="summary-row paid">
-          <td colspan="5"><strong>Jami to'langan</strong></td>
-          <td colspan="5" class="text-right text-success"><strong>{{formatUZS summary.totalPaid}}</strong></td>
-          <td colspan="9"></td>
-        </tr>
-        <tr class="summary-row debt">
-          <td colspan="5"><strong>Jami qoldiq</strong></td>
-          <td colspan="5" class="text-right text-danger"><strong>{{formatUZS summary.totalDebt}}</strong></td>
-          <td colspan="9"></td>
-        </tr>
-      </tfoot>
-    {{/if}}
-    </table>
+        <table class="students-table students-table--all data-table">
+          <colgroup>
+            <col class="col-index">
+            <col class="col-name">
+            <col class="col-phone">
+            <col class="col-branch">
+            <col class="col-status">
+            <col class="col-money">
+            <col class="col-money">
+            <col class="col-method">
+            <col class="col-status">
+            <col class="col-status">
+            <col class="col-operator">
+            <col class="col-actions">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>F.I.SH</th>
+              <th>Telefon</th>
+              <th>Filial</th>
+              <th>Kurs turi</th>
+              <th class="text-right">Jami to'langan</th>
+              <th class="text-right">Qarzdorlik</th>
+              <th>To'lov turi</th>
+              <th>Holat</th>
+              <th>Natija</th>
+              <th>Operator</th>
+              <th>Amallar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#if students.length}}
+              {{#each students}}
+                <tr data-id="{{id}}" data-course-type="{{courseType}}">
+                  <td>{{add @index 1}}</td>
+                  <td class="cell-primary" title="{{lastName}} {{firstName}}">
+                    <div class="cell-stack">
+                      <strong>{{lastName}} {{firstName}}</strong>
+                      <span class="cell-muted cell-truncate">{{#if notes}}{{notes}}{{else}}Izoh yo'q{{/if}}</span>
+                    </div>
+                  </td>
+                  <td title="{{phone}}">{{phone}}</td>
+                  <td><span class="branch-badge">{{branch.name}}</span></td>
+                  <td><span class="badge badge-course {{courseType}}">{{courseTypeLabel courseType}}</span></td>
+                  <td class="text-right tabular-nums">{{formatUZS paidTotal}}</td>
+                  <td class="text-right tabular-nums {{debtClass debt}}">
+                    <strong>{{#if debt}}{{formatUZS debt}}{{else}}✓ To'langan{{/if}}</strong>
+                  </td>
+                  <td>{{paymentMethodLabel paymentMethod}}</td>
+                  <td><span class="{{studentStatusClass status}}">{{studentStatusLabel status}}</span></td>
+                  <td><span class="{{studentResultClass result}}">{{studentResultLabel result}}</span></td>
+                  <td title="{{registrar.fullName}}">{{registrar.fullName}}</td>
+                  <td class="actions-cell">
+                    <button class="btn-icon btn-edit" type="button" data-modal-open="student-edit-{{id}}">Tahrir</button>
+                    <button class="btn-icon" type="button" data-modal-open="student-edit-{{id}}">To'lov</button>
+                    {{#if ../isOwner}}
+                      <button
+                        class="btn-icon btn-delete"
+                        type="button"
+                        data-confirm-action="/app/students/{{id}}/delete"
+                        data-confirm-title="Talabani o'chirish"
+                        data-confirm-description="{{lastName}} {{firstName}} yozuvini tizimdan olib tashlamoqchimisiz?"
+                        data-confirm-button="Ha, o'chirish"
+                        data-modal-open="delete-modal"
+                      >
+                        O'chir
+                      </button>
+                    {{/if}}
+                  </td>
+                </tr>
+              {{/each}}
+            {{else}}
+              <tr class="table-empty-row">
+                <td colspan="12">{{> empty-state message="Tanlangan filter bo'yicha talaba topilmadi" icon="—" }}</td>
+              </tr>
+            {{/if}}
+          </tbody>
+          {{#if students.length}}
+            <tfoot>
+              <tr class="summary-row jami-natija">
+                <td colspan="5"><strong>Jami</strong></td>
+                <td class="text-right">{{formatUZS summary.totalPaid}}</td>
+                <td class="text-right">{{formatUZS summary.totalDebt}}</td>
+                <td colspan="5"></td>
+              </tr>
+            </tfoot>
+          {{/if}}
+        </table>
+      {{/ifEquals}}
+    {{/ifEquals}}
   </div>
 </div>

@@ -1,0 +1,20 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Deploy to automaktab",
+			"type": "shell",
+			"command": "python3 run_expect.py"
+		},
+		{
+			"label": "Ex",
+			"type": "shell",
+			"command": "python3 -c \"\nimport os, subprocess\nscript = r'''#!/usr/bin/expect -f\nset timeout -1\nset host \\\"165.22.216.160\\\"\nset user \\\"root\\\"\nset password \\\"P@s\\$w0rd-12345!\\\"\n\nspawn ssh \\$user@\\$host\n\nexpect {\n    \\\"yes/no\\\" { send \\\"yes\\r\\\"; exp_continue }\n    \\\"*assword:*\\\" { send \\\"\\$password\\r\\\" }\n}\n\nexpect \\\"*#*\\\"\n\nsend \\\"cat > /root/agents/deploy.sh << 'EOF'\\n\\\"\nsend \\\"#!/bin/bash\\n\\\"\nsend \\\"export PATH=\\$PATH:/root/.nvm/versions/node/v20.11.1/bin:/usr/local/bin:/usr/bin:/bin\\n\\\"\nsend \\\"if ! command -v pnpm &> /dev/null; then\\n\\\"\nsend \\\"  npm install -g pnpm pm2\\n\\\"\nsend \\\"fi\\n\\\"\nsend \\\"PROJECT_DIR=\\\\\\\"/root/Projects/auto-maktab-crm/backend\\\\\\\"\\n\\\"\nsend \\\"if \\[ ! -d \\\\\\\"\\$PROJECT_DIR\\\\\\\" \\]; then\\n\\\"\nsend \\\"  PROJECT_DIR=\\\\\\\"/root/Projects/auto-maktab/backend\\\\\\\"\\n\\\"\nsend \\\"fi\\n\\\"\nsend \\\"cd \\\\\\\"\\$PROJECT_DIR\\\\\\\"\\n\\\"\nsend \\\"git pull origin main || git pull\\n\\\"\nsend \\\"pnpm install\\n\\\"\nsend \\\"pnpm prisma:generate\\n\\\"\nsend \\\"pnpm prisma:migrate deploy || pnpm prisma:push\\n\\\"\nsend \\\"pnpm run build || pnpm build\\n\\\"\nsend \\\"pm2 restart automaktab-backend || pm2 start dist/main.js --name \\\\\\\"automaktab-backend\\\\\\\"\\n\\\"\nsend \\\"pm2 save\\n\\\"\nsend \\\"echo \\\\\\\"=> Deployment complete!\\\\\\\"\\n\\\"\nsend \\\"EOF\\r\\\"\n\nexpect \\\"*#*\\\"\nsend \\\"chmod +x /root/agents/deploy.sh\\r\\\"\nexpect \\\"*#*\\\"\nsend \\\"bash /root/agents/deploy.sh\\r\\\"\nexpect \\\"*#*\\\"\nsend \\\"exit\\r\\\"\nexpect eof\n'''\nwith open('deploy-remote.exp', 'w') as f:\n    f.write(script)\nos.chmod('deploy-remote.exp', 0o755)\nresult = subprocess.run(['/usr/bin/expect', 'deploy-remote.exp'], capture_output=True, text=True)\nprint(result.stdout)\nif result.stderr:\n    print('ERR:', result.stderr)\n\""
+		},
+		{
+			"label": "Ex2",
+			"type": "shell",
+			"command": "python3 -c \"\nimport os, subprocess\nscript = r'''#!/usr/bin/expect -f\nset timeout -1\nset host \\\"165.22.216.160\\\"\nset user \\\"root\\\"\nset password \\\"P@s\\$w0rd-12345!\\\"\n\nspawn ssh \\$user@\\$host\n\nexpect {\n    \\\"yes/no\\\" { send \\\"yes\\r\\\"; exp_continue }\n    \\\"*assword:*\\\" { send \\\"\\$password\\r\\\" }\n}\n\nexpect -re \\\"# \\\"\n\nsend \\\"cat > /root/agents/deploy.sh << 'EOF'\\n\\\"\nsend \\\"#!/bin/bash\\n\\\"\nsend \\\"export PATH=\\\\$PATH:/usr/local/bin:/usr/bin:/bin\\n\\\"\nsend \\\"if ! command -v pnpm &> /dev/null; then\\n\\\"\nsend \\\"  npm install -g pnpm pm2\\n\\\"\nsend \\\"fi\\n\\\"\nsend \\\"PROJECT_DIR=\\\\\\\"/root/Projects/auto-maktab-crm/backend\\\\\\\"\\n\\\"\nsend \\\"if \\[ ! -d \\\\\\\"\\\\$PROJECT_DIR\\\\\\\" \\]; then\\n\\\"\nsend \\\"  PROJECT_DIR=\\\\\\\"/root/Projects/auto-maktab/backend\\\\\\\"\\n\\\"\nsend \\\"fi\\n\\\"\nsend \\\"cd \\\\\\\"\\\\$PROJECT_DIR\\\\\\\"\\n\\\"\nsend \\\"git pull origin main || git pull\\n\\\"\nsend \\\"pnpm install\\n\\\"\nsend \\\"pnpm prisma:generate\\n\\\"\nsend \\\"pnpm prisma:push || true\\n\\\"\nsend \\\"pnpm build || npm run build\\n\\\"\nsend \\\"pm2 restart automaktab-backend || pm2 start dist/main.js --name \\\\\\\"automaktab-backend\\\\\\\"\\n\\\"\nsend \\\"pm2 save\\n\\\"\nsend \\\"EOF\\r\\\"\n\nexpect -re \\\"# \\\"\nsend \\\"chmod +x /root/agents/deploy.sh\\r\\\"\nexpect -re \\\"# \\\"\nsend \\\"bash /root/agents/deploy.sh\\r\\\"\nexpect -re \\\"# \\\"\nsend \\\"exit\\r\\\"\nexpect eof\n'''\n# Replace python escaped \\$ with backslash dollar for expect\nscript = script.replace('P@s\\\\$w0rd', 'P@s\\\\\\\\$w0rd')\nwith open('deploy-remote.exp', 'w') as f:\n    f.write(script)\nos.chmod('deploy-remote.exp', 0o755)\nresult = subprocess.run(['/usr/bin/expect', 'deploy-remote.exp'], capture_output=True, text=True)\nprint(result.stdout)\nif result.stderr:\n    print('ERR:', result.stderr)\n\""
+		}
+	]
+}

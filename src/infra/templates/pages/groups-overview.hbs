@@ -7,7 +7,6 @@
         <p class="page-description">{{pageDescription}}</p>
       </div>
       <div class="page-actions">
-        <a class="btn-ghost" href="/app/groups/overview">Tozalash</a>
         <button class="btn-primary" type="button" data-modal-open="group-create-modal">Yangi guruh</button>
       </div>
     </section>
@@ -28,7 +27,7 @@
       </div>
       <div class="filter-actions">
         <button class="btn-secondary" type="submit">Filtrni qo'llash</button>
-        <a class="btn-ghost" href="/app/groups/overview">Filtrni tozalash</a>
+        <a class="btn-ghost" href="/app/groups/overview">Tozalash</a>
       </div>
     </form>
 
@@ -83,11 +82,22 @@
 
       <div class="table-wrapper">
         <table class="data-table compact-table">
+          <colgroup>
+            <col class="col-index">
+            <col class="col-name">
+            <col class="col-branch">
+            <col class="col-progress">
+            <col class="col-status">
+            <col class="col-date">
+            <col class="col-actions">
+          </colgroup>
           <thead>
             <tr>
+              <th>#</th>
               <th>Guruh</th>
               <th>Filial</th>
               <th>Talabalar</th>
+              <th>Holat</th>
               <th>Yangilangan sana</th>
               <th>Amallar</th>
             </tr>
@@ -96,34 +106,56 @@
             {{#if groups.length}}
               {{#each groups}}
                 <tr>
+                  <td>{{add @index 1}}</td>
                   <td>
                     <div class="cell-stack">
                       <strong>{{name}}</strong>
                       <span class="cell-muted">{{id}}</span>
                     </div>
                   </td>
-                  <td>{{branchName}}</td>
-                  <td class="tabular-nums">{{totalStudents}} ta</td>
+                  <td><span class="branch-badge">{{branchName}}</span></td>
+                  <td>
+                    <div class="group-progress">
+                      <div class="group-progress-meta">
+                        <span class="tabular-nums"><strong>{{activeStudents}}</strong>/{{totalStudents}}</span>
+                        <span class="cell-muted">faol / jami</span>
+                      </div>
+                      <div class="group-progress-track">
+                        <div class="group-progress-fill" style="width: {{progressPercent activeStudents totalStudents}}%;"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="{{#if isActive}}status-pill success{{else}}status-pill neutral{{/if}}">
+                      {{#if isActive}}Faol{{else}}Nofaol{{/if}}
+                    </span>
+                  </td>
                   <td>{{formatDateUZ updatedAt}}</td>
                   <td class="actions-cell">
                     <button class="btn-icon btn-edit" type="button" data-modal-open="group-edit-{{id}}">Tahrir</button>
-                    <button
-                      class="btn-icon btn-delete"
-                      type="button"
-                      data-modal-open="delete-modal"
-                      data-confirm-action="/app/groups/{{id}}/delete"
-                      data-confirm-title="Guruhni o'chirish"
-                      data-confirm-description="{{name}} guruhini o'chirmoqchimisiz? Guruhda talabalar bo'lsa, tizim bu amalni rad etadi."
-                      data-confirm-button="Ha, o'chirish"
-                    >
-                      O'chir
-                    </button>
+                    {{#if totalStudents}}
+                      <button class="btn-icon btn-delete" type="button" disabled title="Talabalar biriktirilgan guruhni o'chirib bo'lmaydi">
+                        Band
+                      </button>
+                    {{else}}
+                      <button
+                        class="btn-icon btn-delete"
+                        type="button"
+                        data-modal-open="delete-modal"
+                        data-confirm-action="/app/groups/{{id}}/delete"
+                        data-confirm-title="Guruhni o'chirish"
+                        data-confirm-description="{{name}} guruhini o'chirmoqchimisiz? Guruhda talabalar bo'lsa, tizim bu amalni rad etadi."
+                        data-confirm-button="Ha, o'chirish"
+                      >
+                        O'chir
+                      </button>
+                    {{/if}}
                   </td>
                 </tr>
               {{/each}}
             {{else}}
               <tr class="table-empty-row">
-                <td colspan="5">{{> empty-state message="Tanlangan filter bo'yicha guruh topilmadi" icon="GR" }}</td>
+                <td colspan="7">{{> empty-state message="Tanlangan filter bo'yicha guruh topilmadi" icon="GR" }}</td>
               </tr>
             {{/if}}
           </tbody>

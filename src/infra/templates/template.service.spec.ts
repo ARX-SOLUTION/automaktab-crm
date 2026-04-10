@@ -90,7 +90,9 @@ describe('TemplateService', () => {
         totalPaid: 3500000,
         totalDebt: 2500000,
       },
-      filters: {},
+      filters: {
+        courseType: 'standard',
+      },
       stats: {
         paidCount: 0,
         debtCount: 1,
@@ -100,12 +102,13 @@ describe('TemplateService', () => {
 
     const html = await service.render('students', context);
 
-    expect(html).toContain('<th>F.I.SH</th>');
-    expect(html).toContain('<th>Qoldiq</th>');
+    expect(html).toContain('<th>Familya</th>');
+    expect(html).toContain('<th>Ismi</th>');
+    expect(html).toContain("<th class=\"text-right\">Qarzdorlik</th>");
     expect(html).toContain('<th>Amallar</th>');
     expect(html).toContain("Jami natija");
     expect(html).toContain("Jami to'langan");
-    expect(html).toContain("Jami qoldiq");
+    expect(html).toContain("Boshlang'ich to'lov");
     expect(html).toContain("To'lov ko'rinishi");
     expect(html).toContain("To'lov tarixi");
     expect(html).toContain('soʻm');
@@ -137,6 +140,7 @@ describe('TemplateService', () => {
       filters: {},
       stats: {
         totalStudents: 10,
+        activeStudents: 8,
         paidCount: 4,
         debtCount: 6,
         totalPaid: 1000000,
@@ -144,6 +148,7 @@ describe('TemplateService', () => {
         branchDebt: 2000000,
         branchCount: 1,
       },
+      branchBreakdown: undefined,
       flash: undefined,
     };
 
@@ -173,6 +178,7 @@ describe('TemplateService', () => {
           phone: '+998900000001',
           isActive: true,
           createdAt: new Date(),
+          managerCount: 2,
         },
         {
           id: 'branch-2',
@@ -181,8 +187,15 @@ describe('TemplateService', () => {
           phone: null,
           isActive: true,
           createdAt: new Date(),
+          managerCount: 1,
         },
       ],
+      filters: {},
+      summary: {
+        total: 2,
+        active: 2,
+        inactive: 0,
+      },
       flash: undefined,
     };
 
@@ -213,6 +226,11 @@ describe('TemplateService', () => {
         },
       ],
       filters: {},
+      summary: {
+        total: 1,
+        active: 1,
+        inactive: 0,
+      },
       flash: undefined,
     };
 
@@ -294,6 +312,7 @@ describe('TemplateService', () => {
           branchName: 'Minor',
           isActive: true,
           totalStudents: 12,
+          activeStudents: 9,
           createdAt: new Date(),
           updatedAt: new Date(),
         },

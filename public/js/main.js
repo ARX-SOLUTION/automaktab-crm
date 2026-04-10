@@ -192,6 +192,74 @@ function bindGlobalForms() {
   });
 }
 
+function initFilterBars() {
+  const debounceTimers = new WeakMap();
+
+  document.querySelectorAll('.filters-bar').forEach((form) => {
+    if (!(form instanceof HTMLFormElement)) {
+      return;
+    }
+
+    const actions = form.querySelector('.filter-actions');
+    let badge = actions?.querySelector('[data-filter-count]');
+
+    if (!badge && actions instanceof HTMLElement) {
+      badge = document.createElement('span');
+      badge.className = 'filter-count-badge';
+      badge.setAttribute('data-filter-count', 'true');
+      badge.hidden = true;
+      actions.prepend(badge);
+    }
+
+    const syncCount = () => {
+      if (!(badge instanceof HTMLElement)) {
+        return;
+      }
+
+      const count = Array.from(form.elements).filter((field) => {
+        if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement)) {
+          return false;
+        }
+
+        if (field.disabled || !field.name) {
+          return false;
+        }
+
+        if (['page', 'limit', 'success', 'error'].includes(field.name)) {
+          return false;
+        }
+
+        return field.value.trim() !== '';
+      }).length;
+
+      badge.hidden = count === 0;
+      badge.textContent = String(count);
+    };
+
+    syncCount();
+
+    form.querySelectorAll('input[type="text"], input[type="search"]').forEach((input) => {
+      input.addEventListener('input', () => {
+        syncCount();
+        const previous = debounceTimers.get(input);
+        if (previous) {
+          clearTimeout(previous);
+        }
+
+        const timer = window.setTimeout(() => {
+          form.requestSubmit();
+        }, 300);
+
+        debounceTimers.set(input, timer);
+      });
+    });
+
+    form.querySelectorAll('select, input[type="date"]').forEach((field) => {
+      field.addEventListener('change', syncCount);
+    });
+  });
+}
+
 document.addEventListener('click', (event) => {
   const target = event.target instanceof Element ? event.target : null;
 
@@ -237,24 +305,6 @@ document.addEventListener('keydown', (event) => {
   });
 });
 
-(function initSearchDebounce() {
-  var debounceTimer;
-  document.querySelectorAll('.filters-bar input[type="text"], .filters-bar input[type="search"]').forEach(function (input) {
-    input.addEventListener('input', function () {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(function () {
-        var form = input.closest('form');
-        if (form) form.requestSubmit();
-      }, 400);
-    });
-  });
-})();
-
-document.querySelectorAll('form[method="POST"] button[type="submit"]').forEach(function (btn) {
-  var form = btn.closest('form');
-  if (!form) return;
-  form.addEventListener('submit', function () {
-    btn.disabled = true;
-    btn.style.opacity = '0.6';
-  });
-});
+enhanceFlashToasts();
+bindGlobalForms();
+initFilterBars();

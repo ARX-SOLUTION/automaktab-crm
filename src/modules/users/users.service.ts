@@ -137,6 +137,24 @@ export class UsersService {
     return UserResponse.fromEntity(updatedUser, updatedUser.branch?.name ?? null);
   }
 
+  async activate(id: string): Promise<UserResponse> {
+    await this.findManagerOrThrow(id);
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: {
+        isActive: true,
+      },
+      include: {
+        branch: true,
+      },
+    });
+
+    await this.userCache.invalidate(id);
+
+    return UserResponse.fromEntity(updatedUser, updatedUser.branch?.name ?? null);
+  }
+
   async resetPassword(id: string, dto: ResetUserPasswordDto): Promise<void> {
     await this.findManagerOrThrow(id);
 

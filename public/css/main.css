@@ -328,6 +328,20 @@ body.has-modal-open {
   gap: 0.75rem;
 }
 
+.filter-count-badge {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  box-shadow: 0 10px 18px rgba(37, 99, 235, 0.2);
+}
+
 .filter-card,
 .panel,
 .data-card {
@@ -614,6 +628,81 @@ textarea {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
+.branch-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.branch-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  box-shadow: var(--shadow);
+}
+
+.branch-card-header,
+.branch-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.branch-card-header h4,
+.branch-card-meta p,
+.branch-card-meta small {
+  margin: 0;
+}
+
+.branch-card-meta {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.branch-card-meta p,
+.branch-card-meta small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.branch-card-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.branch-card-stat {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 16px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+}
+
+.branch-card-stat span {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.branch-card-stat strong {
+  font-size: 1rem;
+}
+
+.branch-card-link {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.branch-card-link:hover {
+  text-decoration: underline;
+}
+
 .overview-card {
   padding: 1rem;
   border-radius: 22px;
@@ -655,6 +744,34 @@ textarea {
 
 .overview-list li {
   padding: 0.75rem 0.85rem;
+}
+
+.dashboard-branch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-branch-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+
+.dashboard-branch-card h4,
+.dashboard-branch-card p {
+  margin: 0;
+}
+
+.dashboard-mini-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 
 .table-section-footer {

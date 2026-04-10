@@ -24,6 +24,7 @@ import { CreateStudentDto, UpdatePaymentDto, UpdateStudentDto } from '../student
 import { CreateUserDto, ResetUserPasswordDto, UpdateUserDto } from '../users';
 import {
   SsrBaseQueryDto,
+  SsrBranchesQueryDto,
   SsrDashboardQueryDto,
   SsrGroupsQueryDto,
   SsrManagersQueryDto,
@@ -187,7 +188,7 @@ export class PagesController {
   @Get('app/branches')
   async branches(
     @CurrentUser() user: TemplateUserContext,
-    @Query() query: SsrBaseQueryDto,
+    @Query() query: SsrBranchesQueryDto,
     @Res() res: Response,
   ): Promise<void> {
     res.type('html').send(await this.pagesService.renderBranches(user, query));
@@ -285,6 +286,21 @@ export class PagesController {
     try {
       await this.usersService.deactivate(id);
       res.redirect(302, '/app/managers?success=deactivated');
+    } catch (error) {
+      this.redirectWithError(res, '/app/managers', error);
+    }
+  }
+
+  @UseGuards(SsrAuthGuard, SsrRolesGuard)
+  @Roles(Role.owner)
+  @Post('app/managers/:id/activate')
+  async activateManager(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      await this.usersService.activate(id);
+      res.redirect(302, '/app/managers?success=activated');
     } catch (error) {
       this.redirectWithError(res, '/app/managers', error);
     }

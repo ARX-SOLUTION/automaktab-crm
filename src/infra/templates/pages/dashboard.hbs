@@ -63,15 +63,42 @@
       <div class="stat-card success">
         <div class="stat-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none">
-            <path d="M6 12h12M12 6v12M5 5h14v14H5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 12l4 4 8-8M4 12c0-4.418 3.582-8 8-8s8 3.582 8 8-3.582 8-8 8-8-3.582-8-8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <div class="stat-body">
-          <span class="stat-label">Tushum</span>
-          <h3>{{formatUZS stats.totalPaid}}</h3>
-          <small>{{stats.paidCount}} ta to'lovi yopilgan talaba</small>
+          <span class="stat-label">Faol talabalar</span>
+          <h3>{{stats.activeStudents}}</h3>
+          <small>Joriy oqimdagi faol o'quvchilar soni</small>
         </div>
       </div>
+      {{#if user.isOwner}}
+        <div class="stat-card success">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 12h16M12 4v16M6 6h12v12H6z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Daromad</span>
+            <h3>{{formatUZS stats.totalPaid}}</h3>
+            <small>{{stats.paidCount}} ta to'lovi yopilgan talaba</small>
+          </div>
+        </div>
+      {{else}}
+        <div class="stat-card info">
+          <div class="stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M5 12h14M8 8h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <span class="stat-label">Yopilgan to'lovlar</span>
+            <h3>{{stats.paidCount}}</h3>
+            <small>Qoldiqsiz yakunlangan talabalar</small>
+          </div>
+        </div>
+      {{/if}}
       <div class="stat-card warning">
         <div class="stat-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none">
@@ -84,20 +111,6 @@
           <small>{{stats.debtCount}} ta talaba bo'yicha ochiq balans</small>
         </div>
       </div>
-      {{#if user.isOwner}}
-        <div class="stat-card info">
-          <div class="stat-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M4 20V8l8-4 8 4v12H4zm4-8h.01M12 8h.01M16 12h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="stat-body">
-            <span class="stat-label">Filiallar</span>
-            <h3>{{stats.branchCount}}</h3>
-            <small>{{branchNames}}</small>
-          </div>
-        </div>
-      {{/if}}
     </div>
 
     <div class="dashboard-layout">
@@ -127,7 +140,11 @@
         <div class="metric-list">
           <div><span>To'langan talabalar</span><strong>{{stats.paidCount}}</strong></div>
           <div><span>Qarzdor talabalar</span><strong>{{stats.debtCount}}</strong></div>
-          <div><span>Net ko'rsatkich</span><strong>{{formatUZS stats.totalPaid}}</strong></div>
+          {{#if user.isOwner}}
+            <div><span>Net ko'rsatkich</span><strong>{{formatUZS stats.totalPaid}}</strong></div>
+          {{else}}
+            <div><span>Faol filial</span><strong>{{user.branchName}}</strong></div>
+          {{/if}}
         </div>
       </section>
 
@@ -138,11 +155,61 @@
             <p>Faol filiallar bo'yicha tezkor navigatsiya va nazorat.</p>
           </div>
         </div>
-        <ul class="plain-list">
-          {{#each branches}}
-            <li>{{name}}</li>
-          {{/each}}
-        </ul>
+        {{#if branchBreakdown.length}}
+          <div class="dashboard-branch-grid">
+            {{#each branchBreakdown}}
+              <article class="dashboard-branch-card">
+                <div class="branch-card-header">
+                  <div class="branch-card-meta">
+                    <h4>{{branchName}}</h4>
+                    <p>{{studentCount}} ta talaba bo'yicha umumiy ko'rinish</p>
+                  </div>
+                  <span class="branch-badge">{{branchName}}</span>
+                </div>
+                <div class="branch-card-stats">
+                  <div class="branch-card-stat">
+                    <span>Daromad</span>
+                    <strong>{{formatUZS revenue}}</strong>
+                  </div>
+                  <div class="branch-card-stat">
+                    <span>Qarzdorlik</span>
+                    <strong class="{{debtClass debt}}">{{formatUZS debt}}</strong>
+                  </div>
+                </div>
+                <div class="dashboard-mini-stat">
+                  <span>Talabalar soni</span>
+                  <strong>{{studentCount}}</strong>
+                </div>
+              </article>
+            {{/each}}
+          </div>
+        {{else}}
+          <div class="dashboard-branch-grid">
+            <article class="dashboard-branch-card">
+              <div class="branch-card-header">
+                <div class="branch-card-meta">
+                  <h4>{{user.branchName}}</h4>
+                  <p>Filialning joriy ishchi ko'rinishi.</p>
+                </div>
+                <span class="branch-badge">{{user.branchName}}</span>
+              </div>
+              <div class="branch-card-stats">
+                <div class="branch-card-stat">
+                  <span>Faol talabalar</span>
+                  <strong>{{stats.activeStudents}}</strong>
+                </div>
+                <div class="branch-card-stat">
+                  <span>Qarzdorlik</span>
+                  <strong class="{{debtClass stats.totalDebt}}">{{formatUZS stats.totalDebt}}</strong>
+                </div>
+              </div>
+              <div class="dashboard-mini-stat">
+                <span>Yopilgan to'lovlar</span>
+                <strong>{{stats.paidCount}}</strong>
+              </div>
+            </article>
+          </div>
+        {{/if}}
       </section>
     </div>
   </div>

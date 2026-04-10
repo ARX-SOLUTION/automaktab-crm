@@ -1,7 +1,7 @@
 <div class="modal" id="delete-modal">
   <div class="modal-content modal-sm">
     <button class="modal-close" type="button" data-modal-close="delete-modal">&times;</button>
-    <div class="modal-header" style="text-align:center">
+    <div class="modal-header modal-header-centered">
       <div class="delete-modal-icon">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
@@ -9,13 +9,13 @@
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
       </div>
-      <h4>O'chirishni tasdiqlang</h4>
-      <p>Bu amal qaytarilmaydi. Davom etishdan oldin yozuv to'g'riligini tekshiring.</p>
+      <h4 id="delete-modal-title">O'chirishni tasdiqlang</h4>
+      <p id="delete-modal-description">Bu amal qaytarilmaydi. Davom etishdan oldin yozuv to'g'riligini tekshiring.</p>
     </div>
     <form id="delete-form" method="POST">
-      <div class="modal-actions" style="justify-content:center">
+      <div class="modal-actions modal-actions-centered">
         <button class="btn-ghost" type="button" data-modal-close="delete-modal">Bekor qilish</button>
-        <button class="btn-danger" type="submit">
+        <button class="btn-danger" id="delete-modal-submit" type="submit">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           Ha, o'chirish
         </button>

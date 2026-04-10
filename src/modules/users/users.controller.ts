@@ -85,6 +85,15 @@ export class UsersController {
     return this.usersService.deactivate(id);
   }
 
+  @Patch(':id/activate')
+  @UseGuards(RolesGuard)
+  @Roles(Role.owner)
+  @ApiOperation({ summary: 'Activate manager account' })
+  @ApiResponse({ status: 200, type: UserResponse })
+  activate(@Param('id') id: string): Promise<UserResponse> {
+    return this.usersService.activate(id);
+  }
+
   @Patch(':id/reset-password')
   @UseGuards(RolesGuard)
   @Roles(Role.owner)

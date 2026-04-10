@@ -1,0 +1,13 @@
+const { execSync } = require('child_process');
+
+const expectScript = `
+set timeout -1
+spawn ssh root@165.22.216.160 "cd /root/Projects/auto-maktab-crm/backend || cd /root/Projects/auto-maktab/backend && npm install -g pnpm && pnpm install && git pull && pnpm prisma:generate && pnpm build && pm2 restart all"
+expect {
+    "yes/no" { send "yes\\\\r"; exp_continue }
+    "*assword:*" { send "P@s\\$w0rd-12345!\\\\r" }
+}
+expect eof
+`;
+require('fs').writeFileSync('deploy.exp', expectScript);
+execSync('expect deploy.exp', { stdio: 'inherit' });

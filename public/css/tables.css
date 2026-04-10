@@ -6,6 +6,8 @@
   width: 100%;
   overflow-x: auto;
   border-radius: 18px;
+  border: 1px solid #d7e1ef;
+  background: #ffffff;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
@@ -37,51 +39,98 @@
 }
 
 .students-table {
-  min-width: 2100px;
+  min-width: 1600px;
+}
+
+.students-table--all {
+  min-width: 1640px;
+}
+
+.students-table--express {
+  min-width: 1280px;
+}
+
+.students-table--standard {
+  min-width: 1860px;
 }
 
 .compact-table {
-  min-width: 760px;
+  min-width: 900px;
 }
 
-.students-table col.col-index {
+.students-table col.col-index,
+.data-table col.col-index {
   width: 56px;
 }
 
-.students-table col.col-name {
+.students-table col.col-name,
+.data-table col.col-name {
   width: 220px;
 }
 
 .students-table col.col-phone,
+.data-table col.col-phone,
 .students-table col.col-branch,
+.data-table col.col-branch,
 .students-table col.col-course,
+.data-table col.col-course,
 .students-table col.col-method,
-.students-table col.col-operator {
+.data-table col.col-method,
+.students-table col.col-operator,
+.data-table col.col-operator {
   width: 140px;
 }
 
-.students-table col.col-money {
+.students-table col.col-money,
+.data-table col.col-money {
   width: 116px;
 }
 
-.students-table col.col-bool {
+.students-table col.col-bool,
+.data-table col.col-bool {
   width: 84px;
 }
 
-.students-table col.col-status {
+.students-table col.col-status,
+.data-table col.col-status {
   width: 118px;
 }
 
-.students-table col.col-meta {
+.students-table col.col-meta,
+.data-table col.col-meta {
   width: 180px;
 }
 
-.students-table col.col-notes {
+.students-table col.col-notes,
+.data-table col.col-notes {
   width: 190px;
 }
 
-.students-table col.col-actions {
+.students-table col.col-actions,
+.data-table col.col-actions {
   width: 140px;
+}
+
+.students-table col.col-first,
+.data-table col.col-first,
+.students-table col.col-last,
+.data-table col.col-last {
+  width: 144px;
+}
+
+.students-table col.col-date,
+.data-table col.col-date {
+  width: 132px;
+}
+
+.students-table col.col-contract,
+.data-table col.col-contract {
+  width: 156px;
+}
+
+.students-table col.col-progress,
+.data-table col.col-progress {
+  width: 168px;
 }
 
 .data-table th,
@@ -117,6 +166,11 @@
 .data-table tbody tr:hover td,
 .students-table tbody tr:hover td {
   background: #eff6ff;
+}
+
+.data-table tbody tr.muted-row td,
+.students-table tbody tr.muted-row td {
+  opacity: 0.64;
 }
 
 .data-table td,
@@ -157,11 +211,21 @@
   text-overflow: ellipsis;
 }
 
+.cell-code {
+  font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .actions-cell {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.45rem;
+}
+
+.actions-cell form {
+  display: inline-flex;
 }
 
 .summary-row td {
@@ -175,4 +239,42 @@
 
 .summary-row.debt td {
   color: #991b1b;
+}
+
+.branch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.72rem;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #1d4ed8;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.group-progress {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.group-progress-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.group-progress-track {
+  width: 100%;
+  max-width: 7rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #dbe5f2;
+}
+
+.group-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
 }

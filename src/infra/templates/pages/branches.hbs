@@ -7,10 +7,92 @@
         <p class="page-description">{{pageDescription}}</p>
       </div>
       <div class="page-actions">
-        <span class="badge">{{branches.length}} ta filial</span>
         <button class="btn-primary" type="button" data-modal-open="branch-create-modal">Yangi filial</button>
       </div>
     </section>
+
+    <form class="filters-bar filter-card" method="GET" action="/app/branches">
+      <div class="filter-group">
+        <label>Qidiruv</label>
+        <input type="search" name="search" value="{{filters.search}}" placeholder="Filial nomi yoki manzil">
+      </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select name="status">
+          <option value="">Barchasi</option>
+          <option value="active" {{ifEquals filters.status 'active' 'selected'}}>Faol</option>
+          <option value="inactive" {{ifEquals filters.status 'inactive' 'selected'}}>Nofaol</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-secondary" type="submit">Filtrni qo'llash</button>
+        <a class="btn-ghost" href="/app/branches">Tozalash</a>
+      </div>
+    </form>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-body">
+          <span class="stat-label">Jami filiallar</span>
+          <h3>{{summary.total}}</h3>
+          <small>Joriy filter bo'yicha ko'rinayotgan filiallar</small>
+        </div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-body">
+          <span class="stat-label">Faol filiallar</span>
+          <h3>{{summary.active}}</h3>
+          <small>Ishlayotgan filiallar soni</small>
+        </div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-body">
+          <span class="stat-label">Nofaol filiallar</span>
+          <h3>{{summary.inactive}}</h3>
+          <small>Yopilgan yoki vaqtincha o'chirilgan filiallar</small>
+        </div>
+      </div>
+    </div>
+
+    {{#if branches.length}}
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <h3>Filial kartalari</h3>
+            <p>Tezkor skan qilish uchun asosiy filial signalari shu yerda jamlandi.</p>
+          </div>
+        </div>
+        <div class="branch-card-grid">
+          {{#each branches}}
+            <article class="branch-card">
+              <div class="branch-card-header">
+                <div class="branch-card-meta">
+                  <h4>{{name}}</h4>
+                  <p title="{{address}}">{{address}}</p>
+                </div>
+                <span class="{{#if isActive}}status-pill success{{else}}status-pill neutral{{/if}}">
+                  {{#if isActive}}Faol{{else}}Nofaol{{/if}}
+                </span>
+              </div>
+              <div class="branch-card-stats">
+                <div class="branch-card-stat">
+                  <span>Telefon</span>
+                  <strong>{{#if phone}}{{phone}}{{else}}—{{/if}}</strong>
+                </div>
+                <div class="branch-card-stat">
+                  <span>Operatorlar</span>
+                  <strong>{{managerCount}}</strong>
+                </div>
+              </div>
+              <div class="branch-card-footer">
+                <span class="cell-muted">{{formatDateUZ createdAt}} dan beri tizimda</span>
+                <a class="branch-card-link" href="/app/students?branchId={{id}}">Talabalarni ko'rish</a>
+              </div>
+            </article>
+          {{/each}}
+        </div>
+      </section>
+    {{/if}}
 
     <section class="data-card">
       <div class="table-card-header">
@@ -18,16 +100,26 @@
           <h3>Filiallar jadvali</h3>
           <p>Manzil, aloqa va holat bo'yicha barcha filiallarni bir joydan boshqaring.</p>
         </div>
-        <span class="badge">Owner panel</span>
+        <span class="badge">{{summary.total}} ta filial</span>
       </div>
 
       <div class="table-wrapper">
         <table class="data-table compact-table">
+          <colgroup>
+            <col class="col-name">
+            <col class="col-notes">
+            <col class="col-phone">
+            <col class="col-status">
+            <col class="col-status">
+            <col class="col-date">
+            <col class="col-actions">
+          </colgroup>
           <thead>
             <tr>
               <th>Filial</th>
               <th>Manzil</th>
               <th>Telefon</th>
+              <th>Operatorlar</th>
               <th>Holat</th>
               <th>Qo'shilgan sana</th>
               <th>Amallar</th>
@@ -43,11 +135,12 @@
                       <span class="cell-muted">{{id}}</span>
                     </div>
                   </td>
-                  <td title="{{address}}">{{address}}</td>
+                  <td title="{{address}}"><span class="cell-truncate">{{address}}</span></td>
                   <td>{{#if phone}}{{phone}}{{else}}—{{/if}}</td>
+                  <td class="tabular-nums">{{managerCount}} ta</td>
                   <td>
-                    <span class="{{#if isActive}}status-pill success{{else}}status-pill danger{{/if}}">
-                      {{#if isActive}}Faol{{else}}Yopilgan{{/if}}
+                    <span class="{{#if isActive}}status-pill success{{else}}status-pill neutral{{/if}}">
+                      {{#if isActive}}Faol{{else}}Nofaol{{/if}}
                     </span>
                   </td>
                   <td>{{formatDateUZ createdAt}}</td>
@@ -69,7 +162,7 @@
               {{/each}}
             {{else}}
               <tr class="table-empty-row">
-                <td colspan="6">{{> empty-state message="Filiallar hali qo'shilmagan" icon="BR" }}</td>
+                <td colspan="7">{{> empty-state message="Tanlangan filter bo'yicha filial topilmadi" icon="BR" }}</td>
               </tr>
             {{/if}}
           </tbody>

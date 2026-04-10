@@ -1,0 +1,8 @@
+#!/usr/bin/expect -f
+set timeout -1
+spawn ssh root@165.22.216.160 "bash -c 'source ~/.nvm/nvm.sh 2>/dev/null || true; source ~/.profile 2>/dev/null || true; export PATH=\$PATH:/root/.nvm/versions/node/v20.12.0/bin:/usr/local/bin:/usr/bin:/bin; pnpm --version || npm i -g pnpm && cd /root/Projects/auto-maktab-crm/backend || cd /root/Projects/auto-maktab/backend && pnpm fetch --prod && pnpm i && git pull && pnpm build && pm2 restart all'"
+expect {
+    "yes/no" { send "yes\r"; exp_continue }
+    "*assword:*" { send "P@s\$w0rd-12345!\r" }
+}
+expect eof

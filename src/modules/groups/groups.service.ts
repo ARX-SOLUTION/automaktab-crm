@@ -27,6 +27,11 @@ type GroupEntity = Prisma.GroupGetPayload<{
         students: true;
       };
     };
+    students: {
+      select: {
+        id: true;
+      };
+    };
   };
 }>;
 
@@ -242,6 +247,15 @@ export class GroupsService {
             deletedAt: null,
           },
         },
+      },
+    },
+    students: {
+      where: {
+        deletedAt: null,
+        status: StudentStatus.active,
+      },
+      select: {
+        id: true,
       },
     },
   } satisfies Prisma.GroupInclude;

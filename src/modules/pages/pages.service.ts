@@ -9,6 +9,7 @@ import { StudentsService } from '../students';
 import { UsersService } from '../users';
 import {
   SsrBaseQueryDto,
+  SsrBranchesQueryDto,
   SsrDashboardQueryDto,
   SsrGroupsQueryDto,
   SsrManagersQueryDto,
@@ -39,8 +40,16 @@ export class PagesService {
   }
 
   async renderDashboard(user: TemplateUserContext, query: SsrDashboardQueryDto) {
-    const branches = await this.branchesService.findAll(user);
-    const stats = await this.studentsService.getDashboardStats(user, query);
+    const [branches, stats, branchBreakdown] = await Promise.all([
+      this.branchesService.findAll(user),
+      this.studentsService.getDashboardStats(user, query),
+      user.isOwner
+        ? this.reportsService.getRevenue({
+            branchId: query.branchId,
+            courseType: query.courseType,
+          })
+        : Promise.resolve(null),
+    ]);
 
     return this.templates.render('dashboard', {
       title: 'Dashboard',
@@ -66,6 +75,7 @@ export class PagesService {
         branchCount: branches.length,
         branchDebt: stats.totalDebt,
       },
+      branchBreakdown: branchBreakdown?.byBranch,
       flash: this.resolveFlash(query),
     });
   }
@@ -123,8 +133,30 @@ export class PagesService {
     });
   }
 
-  async renderBranches(user: TemplateUserContext, query: SsrBaseQueryDto) {
-    const branches = await this.branchesService.findAll(user);
+  async renderBranches(user: TemplateUserContext, query: SsrBranchesQueryDto) {
+    const [branches, managers] = await Promise.all([
+      this.branchesService.findAll(user),
+      this.usersService.findAll({}),
+    ]);
+
+    const managerCountByBranch = new Map<string, number>();
+    for (const manager of managers) {
+      if (!manager.branchId) {
+        continue;
+      }
+
+      managerCountByBranch.set(manager.branchId, (managerCountByBranch.get(manager.branchId) ?? 0) + 1);
+    }
+
+    const filteredBranches = branches
+      .map((branch) => ({
+        ...branch,
+        managerCount: managerCountByBranch.get(branch.id) ?? 0,
+      }))
+      .filter((branch) => !query.search || `${branch.name} ${branch.address} ${branch.phone ?? ''}`
+        .toLocaleLowerCase('uz-UZ')
+        .includes(query.search.toLocaleLowerCase('uz-UZ')))
+      .filter((branch) => !query.status || branch.isActive === (query.status === 'active'));
 
     return this.templates.render('branches', {
       title: 'Filiallar',
@@ -136,7 +168,16 @@ export class PagesService {
       isOwner: user.isOwner,
       isManager: user.isManager,
       branchCount: branches.length,
-      branches,
+      branches: filteredBranches,
+      filters: {
+        search: query.search,
+        status: query.status,
+      },
+      summary: {
+        total: filteredBranches.length,
+        active: filteredBranches.filter((branch) => branch.isActive).length,
+        inactive: filteredBranches.filter((branch) => !branch.isActive).length,
+      },
       flash: this.resolveFlash(query),
     });
   }
@@ -168,6 +209,11 @@ export class PagesService {
         branchId: query.branchId,
         search: query.search,
         status: query.status,
+      },
+      summary: {
+        total: managers.length,
+        active: managers.filter((manager) => manager.isActive).length,
+        inactive: managers.filter((manager) => !manager.isActive).length,
       },
       flash: this.resolveFlash(query),
     });
@@ -288,6 +334,7 @@ export class PagesService {
       paid: "To'lov yangilandi",
       reset: 'Parol yangilandi',
       deactivated: 'Hisob deaktivatsiya qilindi',
+      activated: 'Hisob qayta faollashtirildi',
     };
 
     if (!code) {

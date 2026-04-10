@@ -104,6 +104,20 @@ export class SsrManagersQueryDto extends SsrBaseQueryDto {
   status?: 'active' | 'inactive';
 }
 
+export class SsrBranchesQueryDto extends SsrBaseQueryDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(toOptionalText)
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({ enum: ['active', 'inactive'] })
+  @IsOptional()
+  @Transform(toOptionalText)
+  @IsIn(['active', 'inactive'])
+  status?: 'active' | 'inactive';
+}
+
 export class SsrGroupsQueryDto extends SsrBaseQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
